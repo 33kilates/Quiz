@@ -5,15 +5,15 @@ const TOTAL_QUESTIONS = 17;
 function trackEvent(eventName, details = {}) {
     console.log(`📊 Evento: ${eventName}`, details);
 
-    // EXEMPLO: Google Analytics 4
-    // if (typeof gtag === 'function') {
-    //     gtag('event', eventName, details);
-    // }
+    // Google Analytics 4
+    if (typeof gtag === 'function') {
+        gtag('event', eventName, details);
+    }
 
-    // EXEMPLO: Facebook Pixel
-    // if (typeof fbq === 'function') {
-    //     fbq('trackCustom', eventName, details);
-    // }
+    // Facebook Pixel
+    if (typeof fbq === 'function') {
+        fbq('trackCustom', eventName, details);
+    }
 }
 
 // Quiz Data - SPIN Selling Structure (Updated)
