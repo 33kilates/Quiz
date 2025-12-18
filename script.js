@@ -1,6 +1,21 @@
 // Defines the total number of questions for progress calculation
 const TOTAL_QUESTIONS = 17;
 
+// --- ANALYTICS TRACKING ---
+function trackEvent(eventName, details = {}) {
+    console.log(`📊 Evento: ${eventName}`, details);
+
+    // EXEMPLO: Google Analytics 4
+    // if (typeof gtag === 'function') {
+    //     gtag('event', eventName, details);
+    // }
+
+    // EXEMPLO: Facebook Pixel
+    // if (typeof fbq === 'function') {
+    //     fbq('trackCustom', eventName, details);
+    // }
+}
+
 // Quiz Data - SPIN Selling Structure (Updated)
 const questions = [
     // FASE 1 - SITUAÇÃO (com tensão embutida)
@@ -209,6 +224,9 @@ function startQuiz() {
                 { duration: 0.5, opacity: 1, y: 0 }
             );
 
+            // Rastrear Início
+            trackEvent('Quiz Iniciado');
+
             renderQuestion(currentQuestionIndex);
         }
     });
@@ -216,6 +234,13 @@ function startQuiz() {
 
 function renderQuestion(index) {
     const question = questions[index];
+
+    // Rastrear cada pergunta (Funnil de Retenção)
+    trackEvent('Visualizou Pergunta', {
+        numero: index + 1,
+        fase: question.phase,
+        id: question.id
+    });
 
     // Update Progress
     const progress = Math.round(((index) / TOTAL_QUESTIONS) * 100);
@@ -300,6 +325,11 @@ function nextQuestion() {
 }
 
 function finishQuiz() {
+    // Rastrear Conclusão
+    trackEvent('Quiz Concluido', {
+        total_respostas: answers.length
+    });
+
     // Hide Quiz Container
     gsap.to(quizContainer, {
         duration: 0.5,
@@ -326,6 +356,9 @@ function finishQuiz() {
 }
 
 function redirect() {
+    // Rastrear Clique no CTA Final
+    trackEvent('Clique CTA Final', { destino: 'Landing Page' });
+
     // Add pixel tracking here if needed
     window.location.href = '#landing-page'; // Replace with actual URL
 }
