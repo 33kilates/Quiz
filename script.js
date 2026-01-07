@@ -56,15 +56,29 @@ async function sendCapi(eventName, eventId, extra = {}) {
  * - Pixel (browser) com { eventID }
  * - CAPI (server) com event_id igual
  */
+const META_STANDARD_EVENTS = new Set([
+  "PageView", "ViewContent", "Lead", "CompleteRegistration",
+  "AddToCart", "InitiateCheckout", "Purchase"
+]);
+
 function fireMetaEvent(eventName, details = {}, eventId = genEventId()) {
+  const isStandard = META_STANDARD_EVENTS.has(eventName);
+
+  // Pixel (browser)
   if (typeof fbq === "function") {
-    fbq("trackCustom", eventName, details, { eventID: eventId });
+    if (isStandard) {
+      fbq("track", eventName, details, { eventID: eventId });
+    } else {
+      fbq("trackCustom", eventName, details, { eventID: eventId });
+    }
   } else {
     trackEvent(eventName, details);
   }
 
+  // GA4
   if (typeof gtag === "function") gtag("event", eventName, details);
 
+  // CAPI sempre com o mesmo event_id
   sendCapi(eventName, eventId, {});
   return eventId;
 }
@@ -521,4 +535,5 @@ window.nextQuestion = nextQuestion;
 window.selectOption = selectOption;
 window.redirect = redirect;
 window.goToVSL = goToVSL;
+
 
