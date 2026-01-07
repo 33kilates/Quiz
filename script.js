@@ -521,10 +521,6 @@ function goToVSL() {
   // 3) Dispara LEAD no CAPI com o MESMO event_id (dedupe perfeito)
   sendCapi("Lead", eventId, {});
 
-  // 4) (Opcional, mas útil p/ debug interno): mantém seu evento custom
-  //    Se você quiser reduzir “poluição” de eventos, pode remover esta linha.
-  fireMetaEvent("ClickCTA", { destination: "VSL" });
-
   // 5) Redireciona com passthrough (UTM + click IDs + fbp/fbc)
   window.location.href = buildPassthroughURL(VSL_BASE);
 }
@@ -535,5 +531,6 @@ window.nextQuestion = nextQuestion;
 window.selectOption = selectOption;
 window.redirect = redirect;
 window.goToVSL = goToVSL;
+
 
 
