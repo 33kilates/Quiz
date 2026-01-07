@@ -1,61 +1,66 @@
 // netlify/functions/capi.js
-
-export default async (req) => {
-  // CORS básico (pra você chamar do browser)
+export async function handler(event) {
   const corsHeaders = {
-    "access-control-allow-origin": "*",
-    "access-control-allow-methods": "POST, OPTIONS",
-    "access-control-allow-headers": "content-type",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "content-type",
+    "Content-Type": "application/json",
   };
 
-  if (req.method === "OPTIONS") {
-    return new Response("", { status: 204, headers: corsHeaders });
+  // Preflight
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 204, headers: corsHeaders, body: "" };
   }
 
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ ok: false, error: "Use POST" }), {
-      status: 405,
-      headers: { ...corsHeaders, "content-type": "application/json" },
-    });
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      headers: corsHeaders,
+      body: JSON.stringify({ ok: false, error: "Use POST" }),
+    };
   }
 
   const PIXEL_ID = "476550044818422";
   const ACCESS_TOKEN = process.env.META_CAPI_TOKEN;
 
   if (!ACCESS_TOKEN) {
-    return new Response(JSON.stringify({ ok: false, error: "META_CAPI_TOKEN not set" }), {
-      status: 500,
-      headers: { ...corsHeaders, "content-type": "application/json" },
-    });
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ ok: false, error: "META_CAPI_TOKEN not set" }),
+    };
   }
 
   let body;
   try {
-    body = await req.json();
+    body = JSON.parse(event.body || "{}");
   } catch {
-    return new Response(JSON.stringify({ ok: false, error: "Invalid JSON" }), {
-      status: 400,
-      headers: { ...corsHeaders, "content-type": "application/json" },
-    });
+    return {
+      statusCode: 400,
+      headers: corsHeaders,
+      body: JSON.stringify({ ok: false, error: "Invalid JSON" }),
+    };
   }
 
-  const {
-    event_name,
-    event_id,
-    event_source_url,
-    // opcional: fbp/fbc se você enviar do front depois
-    fbp,
-    fbc,
-  } = body || {};
+  const { event_name, event_id, event_source_url, fbp, fbc } = body || {};
 
   if (!event_name || !event_id) {
-    return new Response(JSON.stringify({ ok: false, error: "event_name and event_id are required" }), {
-      status: 400,
-      headers: { ...corsHeaders, "content-type": "application/json" },
-    });
+    return {
+      statusCode: 400,
+      headers: corsHeaders,
+      body: JSON.stringify({ ok: false, error: "event_name and event_id are required" }),
+    };
   }
 
   const event_time = Math.floor(Date.now() / 1000);
+
+  // IP/UA (Netlify geralmente coloca o IP real aqui)
+  const clientIp =
+    event.headers["x-nf-client-connection-ip"] ||
+    (event.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
+    "";
+
+  const userAgent = event.headers["user-agent"] || "";
 
   const payload = {
     data: [
@@ -66,11 +71,8 @@ export default async (req) => {
         action_source: "website",
         event_source_url: event_source_url || "",
         user_data: {
-          client_user_agent: req.headers.get("user-agent") || "",
-          client_ip_address:
-            req.headers.get("x-nf-client-connection-ip") ||
-            req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            "",
+          client_ip_address: clientIp,
+          client_user_agent: userAgent,
           ...(fbp ? { fbp } : {}),
           ...(fbc ? { fbc } : {}),
         },
@@ -80,16 +82,39 @@ export default async (req) => {
 
   const url = `https://graph.facebook.com/v20.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`;
 
-  const resp = await fetch(url, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  let resp, data;
+  try {
+    resp = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    data = await resp.json();
+  } catch (err) {
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ ok: false, error: "Fetch to Meta failed", details: String(err) }),
+    };
+  }
 
-  const data = await resp.json();
+  // ✅ NÃO mascarar erro
+  if (!resp.ok || data?.error) {
+    return {
+      statusCode: 502,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        ok: false,
+        error: "Meta CAPI returned error",
+        status: resp.status,
+        meta: data,
+      }),
+    };
+  }
 
-  return new Response(JSON.stringify({ ok: true, meta: data }), {
-    status: 200,
-    headers: { ...corsHeaders, "content-type": "application/json" },
-  });
-};
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: JSON.stringify({ ok: true, meta: data }),
+  };
+}
