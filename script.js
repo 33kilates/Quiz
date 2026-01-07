@@ -462,8 +462,50 @@ function redirect() {
   window.location.href = "#landing-page";
 }
 
+// ------------------------
+// PASSTHROUGH (UTM + CLICK IDs) QUIZ -> VSL
+// ------------------------
+const PASSTHROUGH_KEYS = [
+  "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term",
+  "fbclid", "gclid", "ttclid", "wbraid", "gbraid"
+];
+
+function buildPassthroughURL(baseUrl) {
+  const from = new URLSearchParams(window.location.search);
+  const toUrl = new URL(baseUrl);
+
+  // mantém query que já exista no baseUrl
+  const to = toUrl.searchParams;
+
+  PASSTHROUGH_KEYS.forEach((key) => {
+    const val = from.get(key);
+    if (val) to.set(key, val);
+  });
+
+  // opcional (ajuda MUITO em cross-domain): enviar fbp/fbc também
+  const fbp = getCookie("_fbp");
+  const fbc = getCookie("_fbc");
+  if (fbp) to.set("fbp", fbp);
+  if (fbc) to.set("fbc", fbc);
+
+  return toUrl.toString();
+}
+
+// Use esta função no botão final do Quiz
+function goToVSL() {
+  // 🔥 CONFIRA aqui qual é o domínio correto:
+  const VSL_BASE = "https://maparevendedora.netlify.app/";
+
+  // Evento de clique (custom ok)
+  fireMetaEvent("ClickCTA", { destination: "VSL" });
+
+  // Redireciona com passthrough
+  window.location.href = buildPassthroughURL(VSL_BASE);
+}
+
 // Expor funções pro HTML (onclick)
 window.startQuiz = startQuiz;
 window.nextQuestion = nextQuestion;
 window.selectOption = selectOption;
 window.redirect = redirect;
+window.goToVSL = goToVSL;
