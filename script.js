@@ -493,13 +493,25 @@ function buildPassthroughURL(baseUrl) {
 
 // Use esta função no botão final do Quiz
 function goToVSL() {
-  // 🔥 CONFIRA aqui qual é o domínio correto:
-  const VSL_BASE = "https://maparevendedora.netlify.app/";
+  // ✅ Domínio correto confirmado por você
+  const VSL_BASE = "https://maparevendedoras.netlify.app/";
 
-  // Evento de clique (custom ok)
+  // 1) Gera 1 único eventId para dedupe (browser + CAPI)
+  const eventId = genEventId();
+
+  // 2) Dispara LEAD (evento padrão do Meta) no browser com eventID
+  if (typeof fbq === "function") {
+    fbq("track", "Lead", {}, { eventID: eventId });
+  }
+
+  // 3) Dispara LEAD no CAPI com o MESMO event_id (dedupe perfeito)
+  sendCapi("Lead", eventId, {});
+
+  // 4) (Opcional, mas útil p/ debug interno): mantém seu evento custom
+  //    Se você quiser reduzir “poluição” de eventos, pode remover esta linha.
   fireMetaEvent("ClickCTA", { destination: "VSL" });
 
-  // Redireciona com passthrough
+  // 5) Redireciona com passthrough (UTM + click IDs + fbp/fbc)
   window.location.href = buildPassthroughURL(VSL_BASE);
 }
 
@@ -509,3 +521,4 @@ window.nextQuestion = nextQuestion;
 window.selectOption = selectOption;
 window.redirect = redirect;
 window.goToVSL = goToVSL;
+
