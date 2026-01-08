@@ -22,76 +22,72 @@
         'https://connect.facebook.net/en_US/fbevents.js');
         fbq('init', '476550044818422'); 
         fbq('track', 'PageView');
-        fbq('trackCustom', 'EH_PAGEVIEW_QUIZ'); // Para Connect Rate Real
+        fbq('trackCustom', 'EH_PAGEVIEW_QUIZ'); 
     </script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
 </head>
 
-<body class="bg-gray-50 text-slate-800 antialiased font-sans">
-    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#08418e]/10 rounded-full blur-[100px]"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#2cc6b6]/10 rounded-full blur-[100px]"></div>
-    </div>
+<body>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
 
-    <main class="min-h-screen flex items-center justify-center p-4 md:p-6 w-full max-w-4xl mx-auto z-10 relative">
-        
-        <section id="intro-screen" class="w-full text-center space-y-8 glass-card p-8 md:p-12 rounded-3xl shadow-2xl relative">
-            <div class="space-y-4">
-                <span class="badge">Diagnóstico de Elite</span>
-                <h1 class="text-4xl md:text-6xl font-heading font-bold text-slate-900 leading-tight">
-                    Apenas 7% das donas de marcas possuem a <span class="text-gradient">maturidade necessária</span> para escalar sem calotes.
-                </h1>
-                <p class="text-xl text-slate-600 max-w-2xl mx-auto">
-                    Construa um time de elite ou continue financiando uma <strong>Equipe Zumbi</strong>.
-                </p>
-            </div>
+    <main style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+        <div style="width: 100%; max-width: 56rem;">
 
-            <div class="max-w-xl mx-auto bg-white/60 p-6 rounded-2xl border border-slate-200">
-                <p class="text-slate-600 italic">"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p>
-            </div>
-
-            <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">
-                Iniciar Diagnóstico Profissional
-            </button>
-        </section>
-
-        <section id="quiz-container" class="hidden w-full max-w-2xl">
-            <div class="mb-8 flex justify-between items-end">
-                <span id="progress-text" class="text-2xl font-bold text-slate-900">0%</span>
-                <div class="progress-container">
-                    <div id="progress-bar" class="progress-fill"></div>
+            <section id="intro-screen" class="glass-card p-12 text-center shadow-2xl" style="display: flex; flex-direction: column; gap: 2rem;">
+                <div>
+                    <span class="badge">Diagnóstico de Elite</span>
+                    <h1 style="font-size: 3.5rem; font-weight: 800; color: #0f172a; margin: 1.5rem 0; line-height: 1.1;">
+                        Apenas 7% das donas de marcas possuem a <span class="text-gradient">maturidade necessária</span> para escalar sem calotes.
+                    </h1>
+                    <p style="font-size: 1.25rem; color: #475569;">
+                        Construa um time de elite ou continue financiando uma <strong>Equipe Zumbi</strong>.
+                    </p>
                 </div>
-            </div>
-            <div id="question-card" class="glass-card bg-white rounded-3xl p-8 md:p-10 shadow-xl min-h-[450px] flex flex-col justify-center">
-                <div id="question-content" class="space-y-6"></div>
-                <div class="mt-8 flex justify-end">
-                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-next">
-                        Próxima Etapa →
-                    </button>
+
+                <div style="background: rgba(255,255,255,0.6); padding: 1.5rem; border-radius: 1rem; border: 1px solid #e2e8f0;">
+                    <p style="color: #475569; font-style: italic;">"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p>
                 </div>
-            </div>
-        </section>
 
-        <section id="loading-screen" class="hidden w-full text-center space-y-6">
-            <div class="spinner mx-auto"></div>
-            <h2 class="text-2xl font-bold text-slate-800">Cruzando dados com padrões das Gigantes...</h2>
-        </section>
+                <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">
+                    Iniciar Diagnóstico Profissional
+                </button>
+            </section>
 
-        <section id="result-screen" class="hidden w-full max-w-2xl glass-card bg-white p-8 md:p-12 rounded-3xl shadow-2xl text-center space-y-8">
-            <h2 class="text-3xl font-heading font-bold text-slate-900">Diagnóstico Concluído!</h2>
-            <div class="alert-box">
-                <p class="text-slate-400 text-xs font-bold uppercase">Vazamento Mensal Estimado:</p>
-                <div id="dynamic-money-impact" class="text-4xl font-bold text-red-600 my-2">Calculando...</div>
-                <ul class="text-sm space-y-2 mt-4 text-slate-700">
-                    <li>• Sinais críticos de <strong>Cegueira de Perfil</strong>.</li>
-                    <li>• Estrutura abaixo do padrão <strong>Rommanel e Mary Kay</strong>.</li>
-                </ul>
-            </div>
-            <button onclick="goToVSL()" class="btn-primary w-full">
-                Ver Plano de Correção Imediata
-            </button>
-        </section>
+            <section id="quiz-container" class="hidden">
+                <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+                    <span id="progress-text" style="font-size: 1.5rem; font-weight: 800;">0%</span>
+                    <div style="flex-grow: 1; height: 12px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+                        <div id="progress-bar" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.7s;"></div>
+                    </div>
+                </div>
+                <div id="question-card" class="glass-card p-10 shadow-xl" style="min-height: 450px; display: flex; flex-direction: column; justify-content: center;">
+                    <div id="question-content" style="display: flex; flex-direction: column; gap: 1.5rem;"></div>
+                    <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+                        <button id="next-btn" onclick="nextQuestion()" class="hidden btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                            Próxima Etapa →
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="result-screen" class="hidden glass-card p-12 text-center shadow-2xl" style="display: flex; flex-direction: column; gap: 2rem;">
+                <h2 style="font-size: 2.25rem; font-weight: 800;">Diagnóstico Concluído!</h2>
+                <div style="background: #fff1f2; border: 1px solid #fda4af; padding: 2rem; border-radius: 1.5rem; text-align: left;">
+                    <p style="color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Vazamento Mensal Estimado:</p>
+                    <div id="dynamic-money-impact" style="color: #e11d48; font-size: 3rem; font-weight: 800; margin: 0.5rem 0;">Calculando...</div>
+                    <ul style="list-style: none; margin-top: 1rem; color: #334155; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <li>• Sinais críticos de <strong>Cegueira de Perfil</strong>.</li>
+                        <li>• Estrutura abaixo do padrão <strong>Rommanel e Mary Kay</strong>.</li>
+                    </ul>
+                </div>
+                <button onclick="goToVSL()" class="btn-primary" style="width: 100%;">
+                    Ver Plano de Correção Imediata
+                </button>
+            </section>
+
+        </div>
     </main>
 
     <script src="script.js" defer></script>
