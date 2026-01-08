@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raio-X da Sua Equipe de Revendedoras</title>
+
+    <!-- !!! ATENCAO: COLE SEU CODIGO DO GOOGLE ANALYTICS AQUI !!! -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NG4F9GBLMJ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-NG4F9GBLMJ'); // Substitua G-SEU-CODIGO-AQUI pelo seu ID
+    </script>
+    <!-- FIM DO GOOGLE ANALYTICS -->
+
+    <!-- !!! ATENCAO: COLE SEU CODIGO DO FACEBOOK PIXEL AQUI !!! -->
+    <!-- Meta Pixel Code -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '476550044818422'); // Substitua 1234567890 pelo seu ID do Pixel
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=476550044818422&ev=PageView&noscript=1" /></noscript>
+    <!-- End Meta Pixel Code -->
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#08418e', // Azul escuro
+                        accent: '#2cc6b6', // Verde água
+                        darkbg: '#0f172a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-gray-50 text-slate-800 min-h-screen flex flex-col overflow-x-hidden font-sans antialiased selection:bg-accent selection:text-white">
+
+    <!-- Background Elements -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/10 rounded-full blur-[100px]"></div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow flex items-center justify-center p-4 md:p-6 w-full max-w-4xl mx-auto relative z-10">
+
+        <!-- SECTION 1: INTRO (START SCREEN) -->
+        <section id="intro-screen"
+            class="w-full text-center space-y-8 glass-card p-8 md:p-12 rounded-3xl border border-white/50 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+            <!-- Decorative Border Glow -->
+            <div
+                class="absolute inset-0 border border-t-white/60 border-l-white/40 border-r-white/20 border-b-transparent rounded-3xl pointer-events-none">
+            </div>
+
+            <div class="space-y-4">
+                <span
+                    class="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase border border-primary/20">
+                    Diagnóstico Profissional
+                </span>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-slate-900 leading-tight">
+                    Raio-X da Sua Equipe <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">de
+                        Revendedoras</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                    Descubra agora se sua equipe está gerando lucro real ou prejuízo operacional silencioso.
+                </p>
+            </div>
+
+            <div class="max-w-xl mx-auto bg-white/60 p-6 rounded-2xl border border-slate-200">
+                <p class="text-slate-600 mb-4">
+                    Responda algumas perguntas rápidas e identifique se você está perdendo dinheiro por falhas de perfil
+                    e gestão da equipe — mesmo sem perceber.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 text-sm text-slate-500 font-medium">
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4 text-accent" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg> Leva menos de 3 minutos</span>
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4 text-accent" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg> Respostas confidenciais</span>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <button onclick="startQuiz()"
+                    class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-300 bg-accent rounded-full hover:bg-[#25b5a6] focus:outline-none focus:ring-4 focus:ring-accent/30 shadow-lg shadow-accent/30 hover:shadow-accent/50 scale-in-out-pulse w-full md:w-auto min-w-[280px]">
+                    <span class="mr-2">Começar meu diagnóstico</span>
+                    <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- SECTION 2: QUIZ CONTAINER (HIDDEN) -->
+        <section id="quiz-container" class="hidden w-full max-w-2xl relative">
+
+            <!-- Progress Header -->
+            <div class="mb-8">
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-sm font-semibold text-primary uppercase tracking-wider">Progresso</span>
+                    <span id="progress-text" class="text-2xl font-bold text-slate-900 font-heading">0%</span>
+                </div>
+                <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="progress-bar"
+                        class="h-full bg-accent transition-all duration-700 ease-out w-0 rounded-full relative">
+                        <div class="absolute inset-0 bg-white/30 w-full h-full animate-shimmer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="question-card"
+                class="glass-card bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-10 relative overflow-hidden min-h-[400px] flex flex-col">
+                <!-- Question Content -->
+                <div id="question-content" class="flex-grow z-10 space-y-6">
+                    <!-- Dynamic Content -->
+                </div>
+
+                <!-- Navigation Controls -->
+                <div id="quiz-controls" class="mt-8 flex justify-end items-center h-12">
+                    <!-- Next Button (Hidden initially) -->
+                    <button id="next-btn" onclick="nextQuestion()"
+                        class="hidden opacity-0 transform translate-y-4 px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-[#25b5a6] transition-all flex items-center gap-2 shadow-md hover:shadow-lg">
+                        Próxima pergunta
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 3: LOADING/ANALYSIS (HIDDEN) -->
+        <section id="loading-screen" class="hidden w-full text-center space-y-6">
+            <div class="relative w-24 h-24 mx-auto">
+                <div class="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-accent rounded-full border-t-transparent animate-spin">
+                </div>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 animate-pulse">Analisando seu perfil de gestão...</h2>
+            <p class="text-slate-500">Compilando dados da equipe...</p>
+        </section>
+
+
+        <!-- SECTION 4: FINAL RESULT (HIDDEN) -->
+        <section id="result-screen"
+            class="hidden w-full max-w-2xl glass-card bg-white p-8 md:p-12 rounded-3xl border border-slate-100 shadow-2xl text-center space-y-8 relative overflow-hidden">
+            <!-- Decorative -->
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-accent"></div>
+
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+
+            <h2 class="text-3xl md:text-4xl font-heading font-bold text-slate-900">
+                Diagnóstico Concluído!
+            </h2>
+
+            <p class="text-lg text-slate-600">
+                Você vai entender exatamente onde sua equipe está falhando.
+            </p>
+
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-6 text-left space-y-3">
+                <h3 class="font-bold text-primary flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Resumo Preliminar:
+                </h3>
+                <ul class="space-y-2 text-slate-700 text-sm md:text-base">
+                    <li class="flex items-start gap-2">
+                        <span class="text-red-500 mt-1">●</span> Indícios de ineficiência no recrutamento e seleção.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-red-500 mt-1">●</span> Risco detectado de prejuízo com estoque parado.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-yellow-500 mt-1">●</span> Potencial de escala travado por gestão manual.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="pt-4">
+                <p class="text-sm text-slate-500 mb-4 font-medium uppercase tracking-wide">Acesse o plano de correção:
+                </p>
+                <button onclick="goToVSL()"
+                    class="w-full md:w-auto px-8 py-4 bg-accent text-white font-bold text-lg rounded-full shadow-xl shadow-accent/20 hover:bg-[#25b5a6] transition-all transform hover:-translate-y-1 relative overflow-hidden group">
+                    <span class="relative z-10 flex items-center justify-center gap-2">
+                        Ver meu diagnóstico completo
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </span>
+                    <div
+                        class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    </div>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 w-full py-2 text-center text-xs text-slate-400 z-0 pointer-events-none">
+        &copy; 2025 Sistema de Diagnóstico Comercial. Todos os direitos reservados.
+    </footer>
+
+    <!-- Logic -->
+    <script src="script.js"></script>
+</body>
+
+</html>
+
+
