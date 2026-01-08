@@ -1,86 +1,120 @@
 (function() {
     "use strict";
-
     const model = { estLoss: 0, range: "", activeCount: 0, maturityPoints: 0 };
     const fmt = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v);
-
-    // --- ANALYTICS & CAPI ---
-    function genEventId() { return (crypto?.randomUUID && crypto.randomUUID()) || String(Date.now()) + "-" + Math.random(); }
+    
+    // Traqueamento (Mantendo toda sua lógica original de UTM e CAPI)
+    const genId = () => (crypto?.randomUUID ? crypto.randomUUID() : Date.now() + Math.random());
     function getCookie(n) { const m = document.cookie.match(new RegExp("(^|; )" + n.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&") + "=([^;]*)")); return m ? decodeURIComponent(m[2]) : null; }
 
-    async function sendCapi(eventName, eventId, extra = {}) {
-        const payload = { event_name: eventName, event_id: eventId, event_source_url: window.location.href, fbp: getCookie("_fbp"), fbc: getCookie("_fbc"), ...extra };
-        try { await fetch("/.netlify/functions/capi", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch (err) { console.warn("CAPI Error", err); }
+    async function sendCapi(ev, id, data = {}) {
+        try {
+            fetch("/.netlify/functions/capi", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ event_name: ev, event_id: id, event_source_url: window.location.href, fbp: getCookie("_fbp"), fbc: getCookie("_fbc"), ...data }),
+                keepalive: true 
+            });
+        } catch (e) {}
     }
 
-    function fireMetaEvent(eventName, details = {}) {
-        const eventId = genId();
-        if (typeof fbq === "function") fbq("track", eventName, details, { eventID: eventId });
-        sendCapi(eventName, eventId, { custom_data: details });
+    function track(ev, data = {}) {
+        const id = genId();
+        if (window.fbq) fbq("track", ev, data, { eventID: id });
+        sendCapi(ev, id, data);
     }
 
-    // --- QUIZ DATA ---
+    // Perguntas (Elevador de Consciência)
     const questions = [
-        { ph: "SITUAÇÃO", q: "Qual o tamanho atual da sua base de revendedoras?", opts: ["1 a 10", "11 a 30", "31 a 60", "Mais de 60"], prov: "Empresas que não medem a base com precisão sofrem vazamento silencioso no 1º trimestre.", map: (o, i) => { model.range = o; model.activeCount = [8, 20, 45, 80][i]; } },
-        { ph: "FINANCEIRO", q: "Qual seu prejuízo estimado nos últimos 6 meses?", opts: ["Até R$ 2k", "R$ 2k a R$ 7k", "Acima de R$ 10k", "Não controlo"], prov: "Se não sabe quanto perde, tem uma loteria de mercadorias, não uma empresa.", map: (o, i) => { model.estLoss = [2000, 7000, 15000, 10000][i]; } },
-        { ph: "CEGUEIRA", q: "Como decide o valor da mercadoria para uma nova?", opts: ["Feeling", "Urgência", "Regra falha", "Padrão das Gigantes"], prov: "As grandes marcas como Natura e Avon filtram o DNA de vendas antes da primeira peça.", map: (o, i) => { if(i===3) model.maturityPoints += 33; } },
-        { ph: "EQUIPE ZUMBI", q: "Qual comportamento é mais comum no seu time?", opts: ["Somem logo", "Maletas sujas", "WhatsApp deserto", "100% Produtivo"], prov: "Cuidado: você pode estar sustentando uma 'Equipe Zumbi' que trava seu caixa.", map: (o, i) => { if(i===3) model.maturityPoints += 33; } },
-        { ph: "LIBERDADE", q: "Quanto do seu tempo gasta agindo como 'babá'?", opts: ["O dia todo", "Mais que o ideal", "É constante", "Foco Estratégico"], prov: "Se gasta tempo cobrando em vez de escalar, é funcionária do seu time.", map: (o, i) => { if(i===3) model.maturityPoints += 34; } },
-        { ph: "COMPROMISSO", q: "Pronta para profissionalizar sua triagem hoje?", opts: ["Sim!", "Sim, quero o diagnóstico", "Dúvidas"], prov: "O mercado não perdoa o amadorismo operacional." }
+        { 
+            ph: "SITUAÇÃO", 
+            q: "Qual o tamanho atual da sua base de revendedoras?", 
+            opts: ["Iniciante (1-10)", "Em Expansão (11-30)", "Escalando (31-60)", "Elite (60+)"], 
+            prov: "Empresas que não medem a base com precisão sofrem vazamento silencioso no 1º trimestre.",
+            map: (o, i) => { model.range = o; model.activeCount = [8, 20, 45, 80][i]; }
+        },
+        { 
+            ph: "FINANCEIRO", 
+            q: "Qual seu prejuízo estimado nos últimos 6 meses (calotes/estoque parado)?", 
+            opts: ["Até R$ 2k", "R$ 2k a R$ 7k", "Acima de R$ 10k", "Não controlo"], 
+            prov: "Se você não sabe quanto está perdendo, você tem uma loteria, não uma empresa.",
+            map: (o, i) => { model.estLoss = [2000, 7000, 15000, 10000][i]; }
+        },
+        { 
+            ph: "CEGUEIRA", 
+            q: "Como você decide o valor da mercadoria para uma nova revendedora?", 
+            opts: ["Feeling", "Urgência dela", "Regra falha", "Padrão das Gigantes"], 
+            prov: "As grandes marcas filtram o DNA de vendas antes de entregar a primeira peça.",
+            map: (o, i) => { if(i === 3) model.maturityPoints += 33; }
+        },
+        { 
+            ph: "RETENÇÃO", 
+            q: "Qual comportamento é mais comum na sua 'Equipe Zumbi' hoje?", 
+            opts: ["Somem logo", "Atrasam acerto", "WhatsApp deserto", "Time 100% Produtivo"], 
+            prov: "Cuidado: você pode estar sustentando uma equipe que suga seu tempo e trava seu caixa.",
+            map: (o, i) => { if(i === 3) model.maturityPoints += 33; }
+        },
+        { 
+            ph: "LIBERDADE", 
+            q: "Quanto do seu tempo você gasta agindo como 'babá'?", 
+            opts: ["O dia todo", "Mais que o ideal", "É constante", "Foco na Estratégia"], 
+            prov: "Se você gasta tempo cobrando em vez de escalar, é funcionária do seu time.",
+            map: (o, i) => { if(i === 3) model.maturityPoints += 34; }
+        },
+        { 
+            ph: "COMPROMISSO", 
+            q: "Pronta para parar de 'jogar a rede' e começar a usar o 'arpão'?", 
+            opts: ["Sim! Profissionalizar hoje", "Sim, quero parar de perder $", "Dúvidas"], 
+            prov: "O mercado não perdoa amadorismo. Sua decisão agora define o lucro de 2026."
+        }
     ];
 
-    let currentIdx = 0;
+    let idx = 0;
 
     window.startQuiz = () => {
-        fireMetaEvent("StartQuiz");
-        gsap.to("#intro-screen", { duration: 0.5, opacity: 0, y: -20, onComplete: () => {
-            document.getElementById("intro-screen").classList.add("hidden");
-            document.getElementById("quiz-container").classList.remove("hidden");
-            renderQuestion();
-        }});
+        track("StartQuiz");
+        document.getElementById("intro-screen").classList.add("hidden");
+        document.getElementById("quiz-container").classList.remove("hidden");
+        render();
     };
 
-    function renderQuestion() {
-        const q = questions[currentIdx];
-        document.getElementById("progress-bar").style.width = (currentIdx / questions.length) * 100 + "%";
-        document.getElementById("progress-text").innerText = Math.round((currentIdx / questions.length) * 100) + "%";
+    function render() {
+        const q = questions[idx];
+        document.getElementById("progress-bar").style.width = (idx / questions.length) * 100 + "%";
+        document.getElementById("progress-text").innerText = Math.round((idx / questions.length) * 100) + "%";
         document.getElementById("question-content").innerHTML = `
-            <div class="animate-content">
-                <span class="text-xs font-bold text-accent uppercase tracking-widest block mb-1">${q.ph}</span>
-                <p class="text-xs text-slate-400 italic mb-4">"${q.prov}"</p>
-                <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6">${currentIdx + 1}. ${q.q}</h3>
-                <div class="flex flex-col gap-3">
-                    ${q.opts.map((o, i) => `<div class="option-card rounded-xl p-4 font-medium" onclick="window.sel(${i}, this)">${o}</div>`).join('')}
-                </div>
+            <span style="color:var(--accent); font-size:12px; font-weight:700;">${q.ph}</span>
+            <p style="font-size:13px; color:#94a3b8; font-style:italic; margin: 8px 0;">"${q.prov}"</p>
+            <h3 style="font-size:22px; font-weight:800; color:#0f172a; margin-bottom:20px;">${idx+1}. ${q.q}</h3>
+            <div style="display:flex; flex-direction:column;">
+                ${q.opts.map((o, i) => `<div class="option-card" style="border:2px solid #e2e8f0; padding:18px; border-radius:14px; cursor:pointer; background:#fff; margin-bottom:12px;" onclick="window.sel(${i}, this)">${o}</div>`).join('')}
             </div>`;
         document.getElementById("next-btn").classList.add("hidden");
     }
 
     window.sel = (i, el) => {
-        document.querySelectorAll(".option-card").forEach(c => c.classList.remove("selected"));
-        el.classList.add("selected");
+        document.querySelectorAll(".option-card").forEach(c => { c.style.borderColor = "#e2e8f0"; c.style.background = "#fff"; });
+        el.style.borderColor = "var(--accent)"; el.style.background = "#f0fdfc";
         el.dataset.idx = i;
         document.getElementById("next-btn").classList.remove("hidden");
     };
 
     window.nextQuestion = () => {
-        const sel = document.querySelector(".option-card.selected");
-        const q = questions[currentIdx];
-        if (q.map) q.map(q.opts[sel.dataset.idx], parseInt(sel.dataset.idx));
-        currentIdx++;
-        if(currentIdx < questions.length) renderQuestion();
-        else finishQuiz();
+        const s = document.querySelector(".option-card[style*='border-color: var(--accent)']");
+        const q = questions[idx];
+        if (q.map) q.map(q.opts[s.dataset.idx], parseInt(s.dataset.idx));
+        idx++;
+        idx < questions.length ? render() : finish();
     };
 
-    function finishQuiz() {
-        fireMetaEvent("Lead", { range: model.range });
+    function finish() {
+        track("Lead", { active_range: model.range });
         
-        // Cálculos dinâmicos
         const monthlyLoss = Math.round(model.estLoss / 6);
         const annualLoss = monthlyLoss * 12;
-        const profitSim = (model.activeCount * 850) * 1.4; // Simulação: Faturamento + 40%
+        const profitSim = (model.activeCount * 850) * 1.45; // Simulação: Base * ticket médio * ganho de 45%
 
-        document.getElementById("dynamic-money-loss").innerText = fmt(monthlyLoss);
+        document.getElementById("dynamic-money-impact").innerText = fmt(monthlyLoss);
         document.getElementById("annual-loss").innerText = fmt(annualLoss);
         document.getElementById("maturity-score").innerText = model.maturityPoints + "/100";
         document.getElementById("profit-simulation").innerText = fmt(profitSim);
@@ -92,15 +126,16 @@
             document.getElementById("loading-screen").classList.add("hidden");
             document.getElementById("result-screen").classList.remove("hidden");
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 3000);
+        }, 2500);
     }
 
-    // UTM Passthrough
     window.goToVSL = () => {
-        fireMetaEvent("ViewContent", { value: 47, currency: 'BRL' });
-        const from = new URLSearchParams(window.location.search);
-        const toUrl = new URL("https://maparevendedoras.netlify.app/");
-        ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"].forEach(k => { if (from.get(k)) toUrl.searchParams.set(k, from.get(k)); });
-        window.location.href = toUrl.toString();
+        track("ViewContent", { value: 47.00, currency: "BRL" });
+        const p = new URLSearchParams(window.location.search);
+        const to = new URL("https://maparevendedoras.netlify.app/");
+        ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"].forEach(k => {
+            if (p.get(k)) to.searchParams.set(k, p.get(k));
+        });
+        window.location.href = to.toString();
     };
 })();
