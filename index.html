@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagnóstico de Elite: Maturidade Operacional</title>
+    <title>Dossiê de Maturidade Operacional</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://connect.facebook.net">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
@@ -20,23 +19,32 @@
         'https://connect.facebook.net/en_US/fbevents.js');
         fbq('init', '476550044818422');
         fbq('track', 'PageView');
-        fbq('trackCustom', 'EH_PAGEVIEW_QUIZ');
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
 </head>
 <body>
     <div class="glow-1"></div>
     <div class="glow-2"></div>
 
+    <div class="sigilo-banner">
+        ⚠️ CONTEÚDO SIGILOSO: Monitorado pela equipe de compliance operacional.
+    </div>
+
     <main class="container-main">
         <section id="intro-screen" class="glass-card main-card text-center shadow-2xl">
             <div class="badge">Diagnóstico de Elite</div>
-            <h1 class="h1-main">Apenas 7% das donas de marcas possuem a <span class="text-gradient">maturidade operacional</span> necessária.</h1>
-            <p class="p-sub">Você faz parte do grupo de elite ou ainda opera na sorte?</p>
-            <div class="quote-box">
-                <p>"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p>
+            <h1 class="h1-main">Sua equipe é uma máquina de lucro ou um <span class="text-gradient">ralo de dinheiro?</span></h1>
+            
+            <div class="aptidao-box">
+                <p class="text-xs font-bold uppercase mb-3">Verifique sua aptidão antes de iniciar:</p>
+                <ul class="aptidao-list">
+                    <li>✅ Possui operação ativa (mesmo que pequena).</li>
+                    <li>✅ Busca escala previsível para 2026.</li>
+                    <li>✅ Disposta a demitir a "Equipe Zumbi".</li>
+                </ul>
             </div>
-            <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">Começar meu diagnóstico</button>
+
+            <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">INICIAR EXTRAÇÃO DE DADOS</button>
+            <p class="text-xs text-slate-400 mt-4">As gigantes podem solicitar a remoção deste conteúdo a qualquer momento.</p>
         </section>
 
         <section id="quiz-container" class="hidden container-quiz">
@@ -47,30 +55,51 @@
             <div id="question-card" class="glass-card quiz-card shadow-xl">
                 <div id="question-content" class="question-flow"></div>
                 <div class="btn-wrapper">
-                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-next">Próxima etapa →</button>
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-next">Confirmar e Avançar →</button>
                 </div>
             </div>
         </section>
 
         <section id="loading-screen" class="hidden text-center main-card">
             <div class="spinner mx-auto"></div>
-            <h2 class="h2-result" style="color: var(--slate-600)">Analisando dados com o padrão das Gigantes...</h2>
+            <h2 class="h2-result" style="color: var(--slate-600)">Cruzando dados com o padrão Natura, Mary Kay e Rommanel...</h2>
         </section>
 
-        <section id="result-screen" class="hidden glass-card main-card text-center shadow-2xl">
-            <h2 class="h2-result">Diagnóstico Concluído!</h2>
-            <div class="alert-result">
-                <p class="label-result">Vazamento Mensal Estimado:</p>
-                <div id="dynamic-money-impact" class="value-result">Calculando...</div>
-                <ul class="list-result">
-                    <li>● Sinais críticos de <strong>Cegueira de Perfil</strong>.</li>
-                    <li>● Estrutura abaixo do padrão <strong>Natura e Rommanel</strong>.</li>
-                </ul>
+        <section id="result-screen" class="hidden glass-card main-card text-left shadow-2xl">
+            <div class="dossie-header">
+                <h2 class="h2-result text-center">DOSSIÊ DE MATURIDADE</h2>
+                <div class="status-badge">ALTAMENTE CRÍTICO</div>
             </div>
-            <p class="p-sub" style="margin-bottom: 24px; font-weight: 600;">Toque abaixo para estancar esse vazamento:</p>
-            <button onclick="goToVSL()" class="btn-primary" style="max-width: 100%;">Ver meu diagnóstico completo</button>
+
+            <div class="dossie-grid">
+                <div class="dossie-section alert-box-red">
+                    <p class="label-result">Vazamento Mensal Detectado:</p>
+                    <div id="dynamic-money-loss" class="value-result">R$ 0,00</div>
+                    <p class="text-xs text-red-800">Sua "Equipe Zumbi" custará <span id="annual-loss" class="font-bold">R$ 0,00</span> nos próximos 12 meses se não houver correção.</p>
+                </div>
+
+                <div class="dossie-section glass-inner">
+                    <p class="label-result">Nível de Maturidade:</p>
+                    <div id="maturity-score" class="value-result" style="color: var(--primary)">0/100</div>
+                    <p class="text-xs text-slate-600">Gigantes do setor operam acima de 95. Você opera no modelo de "Sorte".</p>
+                </div>
+
+                <div class="dossie-section alert-box-green">
+                    <p class="label-result">Cenário da Virada (Escala 2026):</p>
+                    <div id="profit-simulation" class="value-result" style="color: #065f46">R$ 0,00</div>
+                    <p class="text-xs text-green-800">Faturamento estimado ao aplicar a Triagem Psicográfica e trocar 30% da equipe atual.</p>
+                </div>
+            </div>
+
+            <div class="bridge-text">
+                <p>Seu diagnóstico aponta que você está a um passo do colapso operacional. O que te separa das gigantes não é o produto, é o <strong>Manual de Identificação Psicográfica</strong>.</p>
+            </div>
+
+            <button onclick="goToVSL()" class="btn-primary" style="max-width: 100%;">ACESSAR PLANO DE CORREÇÃO E SIMULAÇÃO COMPLETA</button>
         </section>
     </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
     <script src="script.js" defer></script>
 </body>
 </html>
