@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raio-X de Maturidade Operacional</title>
+    <title>Raio-X da Sua Equipe de Revendedoras</title>
 
-    <link rel="preconnect" href="https://connect.facebook.net">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://connect.facebook.net">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
@@ -29,65 +29,68 @@
 </head>
 
 <body>
-    <div class="bg-glow glow-1"></div>
-    <div class="bg-glow glow-2"></div>
+    <div class="fixed-bg-elements">
+        <div class="glow-top"></div>
+        <div class="glow-bottom"></div>
+    </div>
 
-    <main style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-        <div style="width: 100%; max-width: 56rem;">
+    <main class="main-container">
+        <section id="intro-screen" class="glass-card section-padding text-center shadow-2xl">
+            <div class="space-y-4">
+                <span class="badge">Diagnóstico Profissional</span>
+                <h1 class="heading-main">
+                    Apenas 7% das donas de marcas possuem a <span class="text-primary">maturidade necessária</span> para escalar.
+                </h1>
+                <p class="text-sub">
+                    Descubra se sua equipe está gerando lucro real ou prejuízo operacional silencioso.
+                </p>
+            </div>
 
-            <section id="intro-screen" class="glass-card p-12 text-center shadow-2xl" style="display: flex; flex-direction: column; gap: 2rem;">
-                <div>
-                    <span class="badge">Diagnóstico de Elite</span>
-                    <h1 style="font-size: 3.5rem; font-weight: 800; color: #0f172a; margin: 1.5rem 0; line-height: 1.1;">
-                        Apenas 7% das donas de marcas possuem a <span class="text-gradient">maturidade necessária</span> para escalar sem calotes.
-                    </h1>
-                    <p style="font-size: 1.25rem; color: #475569;">
-                        Construa um time de elite ou continue financiando uma <strong>Equipe Zumbi</strong>.
-                    </p>
+            <div class="info-box">
+                <p class="text-slate-600">"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p>
+            </div>
+
+            <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">
+                Começar meu diagnóstico
+            </button>
+        </section>
+
+        <section id="quiz-container" class="hidden w-full max-w-2xl">
+            <div class="progress-header">
+                <span id="progress-text" class="progress-percent">0%</span>
+                <div class="progress-bg">
+                    <div id="progress-bar" class="progress-fill"></div>
                 </div>
-
-                <div style="background: rgba(255,255,255,0.6); padding: 1.5rem; border-radius: 1rem; border: 1px solid #e2e8f0;">
-                    <p style="color: #475569; font-style: italic;">"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p>
+            </div>
+            <div id="question-card" class="glass-card quiz-card shadow-xl">
+                <div id="question-content" class="space-y-6"></div>
+                <div class="controls">
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-next">
+                        Próxima etapa →
+                    </button>
                 </div>
+            </div>
+        </section>
 
-                <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">
-                    Iniciar Diagnóstico Profissional
-                </button>
-            </section>
+        <section id="loading-screen" class="hidden text-center space-y-6">
+            <div class="spinner mx-auto"></div>
+            <h2 class="loading-text">Analisando seu perfil de gestão...</h2>
+        </section>
 
-            <section id="quiz-container" class="hidden">
-                <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
-                    <span id="progress-text" style="font-size: 1.5rem; font-weight: 800;">0%</span>
-                    <div style="flex-grow: 1; height: 12px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
-                        <div id="progress-bar" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.7s;"></div>
-                    </div>
-                </div>
-                <div id="question-card" class="glass-card p-10 shadow-xl" style="min-height: 450px; display: flex; flex-direction: column; justify-content: center;">
-                    <div id="question-content" style="display: flex; flex-direction: column; gap: 1.5rem;"></div>
-                    <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
-                        <button id="next-btn" onclick="nextQuestion()" class="hidden btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
-                            Próxima Etapa →
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <section id="result-screen" class="hidden glass-card p-12 text-center shadow-2xl" style="display: flex; flex-direction: column; gap: 2rem;">
-                <h2 style="font-size: 2.25rem; font-weight: 800;">Diagnóstico Concluído!</h2>
-                <div style="background: #fff1f2; border: 1px solid #fda4af; padding: 2rem; border-radius: 1.5rem; text-align: left;">
-                    <p style="color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Vazamento Mensal Estimado:</p>
-                    <div id="dynamic-money-impact" style="color: #e11d48; font-size: 3rem; font-weight: 800; margin: 0.5rem 0;">Calculando...</div>
-                    <ul style="list-style: none; margin-top: 1rem; color: #334155; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <li>• Sinais críticos de <strong>Cegueira de Perfil</strong>.</li>
-                        <li>• Estrutura abaixo do padrão <strong>Rommanel e Mary Kay</strong>.</li>
-                    </ul>
-                </div>
-                <button onclick="goToVSL()" class="btn-primary" style="width: 100%;">
-                    Ver Plano de Correção Imediata
-                </button>
-            </section>
-
-        </div>
+        <section id="result-screen" class="hidden glass-card section-padding text-center shadow-2xl">
+            <h2 class="heading-result">Diagnóstico Concluído!</h2>
+            <div class="result-box">
+                <p class="result-label">Vazamento Mensal Estimado:</p>
+                <div id="dynamic-money-impact" class="result-value">Calculando...</div>
+                <ul class="result-list">
+                    <li>• Sinais críticos de <strong>Cegueira de Perfil</strong>.</li>
+                    <li>• Estrutura abaixo do padrão <strong>Gigantes do Mercado</strong>.</li>
+                </ul>
+            </div>
+            <button onclick="goToVSL()" class="btn-primary w-full">
+                Ver meu diagnóstico completo
+            </button>
+        </section>
     </main>
 
     <script src="script.js" defer></script>
