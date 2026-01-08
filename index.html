@@ -8,17 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://connect.facebook.net">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root { --primary: #08418e; --accent: #2cc6b6; --slate-900: #0f172a; --slate-600: #475569; }
-        body { background-color: #f9fafb; margin: 0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 24px; }
-        .hidden { display: none !important; }
-        .container-main { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 32px 20px; max-width: 800px; margin: 0 auto; }
-        .main-card { width: 100%; padding: 40px; position: relative; margin-top: 20px; }
-    </style>
     <link rel="stylesheet" href="style.css">
-
+    
     <script>
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
         n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -33,7 +24,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
 </head>
-<body class="antialiased">
+<body>
     <div class="glow-1"></div>
     <div class="glow-2"></div>
 
@@ -56,11 +47,16 @@
                 </div>
             </div>
             <div id="question-card" class="glass-card quiz-card shadow-xl">
-                <div id="question-content"></div>
+                <div id="question-content" class="question-flow"></div>
                 <div class="btn-wrapper">
                     <button id="next-btn" onclick="nextQuestion()" class="hidden btn-next">Próxima etapa →</button>
                 </div>
             </div>
+        </section>
+
+        <section id="loading-screen" class="hidden text-center main-card">
+            <div class="spinner mx-auto"></div>
+            <h2 class="h2-result" style="color: var(--slate-600)">Analisando dados com o padrão das Gigantes...</h2>
         </section>
 
         <section id="result-screen" class="hidden glass-card main-card text-center shadow-2xl">
@@ -73,9 +69,11 @@
                     <li>● Estrutura abaixo do padrão <strong>Natura e Rommanel</strong>.</li>
                 </ul>
             </div>
-            <button onclick="goToVSL()" class="btn-primary" style="width: 100%; max-width: 100%;">Ver meu diagnóstico completo</button>
+            <p class="p-sub" style="margin-bottom: 24px; font-weight: 600;">Toque no botão abaixo para estancar esse vazamento:</p>
+            <button onclick="goToVSL()" class="btn-primary" style="max-width: 100%;">Ver meu diagnóstico completo</button>
         </section>
     </main>
+
     <script src="script.js" defer></script>
 </body>
 </html>
