@@ -4,20 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnóstico de Elite: Maturidade Operacional</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://connect.facebook.net">
-
-    <style>
-        :root { --primary: #08418e; --accent: #2cc6b6; }
-        body { background-color: #f9fafb; margin: 0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5); }
-        .hidden { display: none !important; }
-    </style>
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
     <script>
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
         n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -30,36 +21,25 @@
         fbq('track', 'PageView');
         fbq('trackCustom', 'EH_PAGEVIEW_QUIZ');
     </script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
 </head>
-<body class="antialiased">
+<body>
     <div class="glow-1"></div>
     <div class="glow-2"></div>
 
     <main class="container-main">
         <section id="intro-screen" class="glass-card main-card text-center shadow-2xl">
             <div class="badge">Diagnóstico de Elite</div>
-            <h1 class="h1-main">
-                Apenas 7% das donas de marcas possuem a <span class="text-gradient">maturidade operacional</span> necessária para escalar.
-            </h1>
+            <h1 class="h1-main">Apenas 7% das donas de marcas possuem a <span class="text-gradient">maturidade operacional</span> necessária.</h1>
             <p class="p-sub">Você faz parte do grupo de elite ou ainda opera na sorte?</p>
-            
-            <div class="quote-box">
-                <p>"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p>
-            </div>
-
-            <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">
-                Começar meu diagnóstico
-            </button>
+            <div class="quote-box"><p>"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p></div>
+            <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">Começar meu diagnóstico</button>
         </section>
 
         <section id="quiz-container" class="hidden container-quiz">
             <div class="progress-wrapper">
                 <span id="progress-text" class="text-progress">0%</span>
-                <div class="progress-track">
-                    <div id="progress-bar" class="progress-bar"></div>
-                </div>
+                <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
             </div>
             <div id="question-card" class="glass-card quiz-card shadow-xl">
                 <div id="question-content"></div>
@@ -67,6 +47,11 @@
                     <button id="next-btn" onclick="nextQuestion()" class="hidden btn-next">Próxima etapa →</button>
                 </div>
             </div>
+        </section>
+
+        <section id="loading-screen" class="hidden text-center">
+            <div class="spinner mx-auto"></div>
+            <h2 class="loading-text">Analisando seu perfil de gestão...</h2>
         </section>
 
         <section id="result-screen" class="hidden glass-card main-card text-center shadow-2xl">
@@ -79,7 +64,8 @@
                     <li>● Estrutura abaixo do padrão <strong>Natura e Rommanel</strong>.</li>
                 </ul>
             </div>
-            <button onclick="goToVSL()" class="btn-primary w-full">Ver meu diagnóstico completo</button>
+            <p class="p-sub" style="margin-bottom: 20px;">Toque no botão abaixo para liberar o plano de correção:</p>
+            <button onclick="goToVSL()" class="btn-primary">Ver meu diagnóstico completo</button>
         </section>
     </main>
     <script src="script.js" defer></script>
