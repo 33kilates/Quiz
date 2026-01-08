@@ -4,29 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnóstico de Elite: Maturidade Operacional</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://connect.facebook.net">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     
-    <style>
-        :root { --primary:#08418e; --accent:#2cc6b6; --slate-900:#0f172a; --slate-600:#475569; }
-        body { background-color:#f9fafb; margin:0; font-family:'Inter',sans-serif; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
-        .container-main { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; max-width:800px; margin:0 auto; }
-        .glass-card { background:rgba(255,255,255,0.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.5); border-radius:24px; }
-        .main-card { width:100%; padding:40px; position:relative; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); }
-        .h1-main { font-family:'Outfit',sans-serif; font-size:2.2rem; font-weight:800; color:var(--slate-900); line-height:1.1; margin:20px 0; }
-        .btn-primary { background:var(--accent); color:#fff; padding:18px 40px; border-radius:99px; font-weight:700; font-size:18px; border:none; cursor:pointer; width:100%; max-width:320px; transition:transform 0.3s; }
-        .hidden { display:none !important; }
-        @media (min-width:768px) { .h1-main { font-size:3.5rem; } }
-        .glow-1, .glow-2 { position:fixed; width:40vw; height:40vw; filter:blur(100px); border-radius:50%; z-index:-1; opacity:0.1; pointer-events:none; }
-        .glow-1 { top:-10%; left:-10%; background:var(--primary); }
-        .glow-2 { bottom:-10%; right:-10%; background:var(--accent); }
-    </style>
-
-    <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet" font-display="swap">
-
     <script>
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
         n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -39,52 +22,56 @@
         fbq('track', 'PageView');
         fbq('trackCustom', 'EH_PAGEVIEW_QUIZ');
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
 </head>
 <body>
     <div class="glow-1"></div>
     <div class="glow-2"></div>
 
     <main class="container-main">
-        <section id="intro-screen" class="glass-card main-card text-center">
-            <div class="badge" style="display:inline-block; padding:4px 12px; background:rgba(8,65,142,0.1); color:var(--primary); border-radius:99px; font-size:12px; font-weight:700; text-transform:uppercase;">Diagnóstico de Elite</div>
-            <h1 class="h1-main">Apenas 7% das donas de marcas possuem a <span style="background:linear-gradient(to right, var(--primary), #2563eb); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">maturidade operacional</span> necessária.</h1>
-            <p style="font-size:1.1rem; color:var(--slate-600); margin-bottom:24px;">Você faz parte do grupo de elite ou ainda opera na sorte?</p>
-            <div style="background:rgba(255,255,255,0.6); padding:20px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:30px;">
-                <p style="color:var(--slate-600); font-style:italic; font-size:14px;">"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p>
+        <section id="intro-screen" class="glass-card main-card text-center shadow-2xl">
+            <div class="badge">Diagnóstico de Elite</div>
+            <h1 class="h1-main">Apenas 7% das donas de marcas possuem a <span class="text-gradient">maturidade operacional</span> necessária.</h1>
+            <p class="p-sub">Você faz parte do grupo de elite ou ainda opera na sorte?</p>
+            <div class="quote-box">
+                <p>"O amadorismo no recrutamento custa mais caro que qualquer imposto."</p>
             </div>
-            <button onclick="startQuiz()" class="btn-primary" style="animation: pulse 2s infinite ease-in-out;">Começar meu diagnóstico</button>
+            <button onclick="startQuiz()" class="btn-primary scale-in-out-pulse">Começar meu diagnóstico</button>
         </section>
 
-        <section id="quiz-container" class="hidden" style="width:100%; max-width:600px;">
-            <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-                <span id="progress-text" style="font-size:24px; font-weight:800;">0%</span>
-                <div style="flex-grow:1; height:12px; background:#e2e8f0; border-radius:99px; overflow:hidden;">
-                    <div id="progress-bar" style="height:100%; background:var(--accent); transition:width 0.7s; width:0%;"></div>
-                </div>
+        <section id="quiz-container" class="hidden container-quiz">
+            <div class="progress-wrapper">
+                <span id="progress-text" class="text-progress">0%</span>
+                <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
             </div>
-            <div id="question-card" class="glass-card" style="padding:30px; min-height:400px; display:flex; flex-direction:column; justify-content:center;">
+            <div id="question-card" class="glass-card quiz-card shadow-xl">
                 <div id="question-content"></div>
-                <div style="margin-top:30px; display:flex; justify-content:flex-end;">
-                    <button id="next-btn" onclick="nextQuestion()" class="hidden" style="background:var(--accent); color:#fff; padding:12px 28px; border-radius:12px; font-weight:700; border:none; cursor:pointer;">Próxima etapa →</button>
+                <div class="btn-wrapper">
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden btn-next">Próxima etapa →</button>
                 </div>
             </div>
         </section>
 
-        <section id="result-screen" class="hidden glass-card main-card text-center">
-            <h2 style="font-family:'Outfit',sans-serif; font-size:2.2rem; font-weight:800; margin-bottom:24px;">Diagnóstico Concluído!</h2>
-            <div style="background:#fff1f2; border:1px solid #fda4af; padding:25px; border-radius:20px; text-align:left; margin-bottom:30px;">
-                <p style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Vazamento Mensal Estimado:</p>
-                <div id="dynamic-money-impact" style="color:#e11d48; font-size:32px; font-weight:800; margin:10px 0;">Calculando...</div>
-                <ul style="list-style:none; font-size:14px; color:#334155; margin-top:15px; padding:0;">
-                    <li style="margin-bottom:8px;">● Sinais críticos de <strong>Cegueira de Perfil</strong>.</li>
+        <section id="loading-screen" class="hidden text-center main-card">
+            <div class="spinner mx-auto"></div>
+            <h2 class="h2-result" style="color: var(--slate-600)">Analisando dados com o padrão das Gigantes...</h2>
+        </section>
+
+        <section id="result-screen" class="hidden glass-card main-card text-center shadow-2xl">
+            <h2 class="h2-result">Diagnóstico Concluído!</h2>
+            <div class="alert-result">
+                <p class="label-result">Vazamento Mensal Estimado:</p>
+                <div id="dynamic-money-impact" class="value-result">Calculando...</div>
+                <ul class="list-result">
+                    <li>● Sinais críticos de <strong>Cegueira de Perfil</strong>.</li>
                     <li>● Estrutura abaixo do padrão <strong>Natura e Rommanel</strong>.</li>
                 </ul>
             </div>
-            <button onclick="goToVSL()" class="btn-primary" style="max-width:100%;">Ver meu diagnóstico completo</button>
+            <p class="p-sub" style="margin-bottom: 24px;">Toque abaixo para liberar seu plano de correção:</p>
+            <button onclick="goToVSL()" class="btn-primary" style="max-width: 100%;">Ver meu diagnóstico completo</button>
         </section>
     </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
     <script src="script.js" defer></script>
 </body>
 </html>
