@@ -51,6 +51,33 @@ function fireMetaEvent(eventName, details = {}, eventId = genEventId()) {
     return eventId;
 }
 
+// --- RETENTION TRACKING (DASHBOARD) ---
+function trackRetentionStep(step) {
+    // Fire-and-forget to analytics endpoint
+    try {
+        // Use full URL if simulated locally or relative path standard
+        const url = "/.netlify/functions/analytics";
+        const data = JSON.stringify({ step });
+
+        if (navigator.sendBeacon) {
+            const blob = new Blob([data], { type: 'application/json' });
+            navigator.sendBeacon(url, blob);
+        } else {
+            fetch(url, { method: "POST", body: data, headers: { 'Content-Type': 'application/json' }, keepalive: true }).catch(() => { });
+        }
+    } catch (e) {
+        console.error("Tracking Error", e);
+    }
+}
+
+// Track Visit On Load
+if (document.readyState === "loading") {
+    // Wait for interactivity
+    document.addEventListener("DOMContentLoaded", () => trackRetentionStep("visits"));
+} else {
+    trackRetentionStep("visits");
+}
+
 // ------------------------
 // DATA MODEL
 // ------------------------
@@ -154,6 +181,7 @@ function fadeIn(el, duration = 300) {
 function startQuiz() {
     if (!didStart) {
         didStart = true;
+        trackRetentionStep("start");
         fireMetaEvent("StartQuiz", { source: "intro_dossier" });
     }
     fadeOut(dom.introScreen, 300, () => {
@@ -161,6 +189,7 @@ function startQuiz() {
         // dom.quizContainer.classList.add("block");
         fadeIn(dom.quizContainer, 300);
         renderQuestion(currentQuestionIndex);
+        trackRetentionStep("q1");
     });
 }
 
@@ -250,6 +279,9 @@ function nextQuestion() {
         currentQuestionIndex++;
         if (currentQuestionIndex < questions.length) {
             renderQuestion(currentQuestionIndex);
+
+            // TRACKING: Step Reached
+            trackRetentionStep(`q${currentQuestionIndex + 1}`);
         } else {
             finishQuiz();
         }
@@ -260,6 +292,7 @@ function finishQuiz() {
     if (!didComplete) {
         didComplete = true;
         fireMetaEvent("QuizComplete", { total_answers: answers.length });
+        trackRetentionStep("leads");
     }
 
     fadeOut(dom.quizContainer, 300, () => {
@@ -276,30 +309,50 @@ function finishQuiz() {
 
 function generateDiagnosis() {
     const resultDiv = document.getElementById("diagnosis-content");
-    let projectedLoss = userState.financialLoss > 0 ? userState.financialLoss * 2 : [6000, 18000, 48000, 96000][userState.baseSize - 1] || 6000;
-    const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+    // Calculate losses
+    let lossValue = userState.financialLoss > 0 ? userState.financialLoss : [6000, 18000, 48000, 96000][userState.baseSize - 1] || 6000;
+    let projectedLoss = lossValue * 12; // Annual projection if monthly input, but logic implies direct value or annual. Assuming context. 
+    // Actually, prompt says "evaporou nos ultimos 6 meses". 
+    // If user selected "2000" (sangria leve), that's for 6 months? Or monthly? 
+    // Let's assume the value is the total loss in 6 months for impact. 
+    // Annual projection = 2 * value.
+    const annualLoss = userState.financialLoss > 0 ? userState.financialLoss * 2 : lossValue;
+
+    const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
 
     resultDiv.innerHTML = `
-        <div class="flex flex-col gap-6 text-left">
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r shadow-sm">
-                <h4 class="text-red-800 font-bold text-sm uppercase tracking-wide mb-1">⚠️ Alerta de Risco Financeiro</h4>
-                <p class="text-red-900 text-sm leading-relaxed">
-                    Operando neste padrão, sua projeção de desperdício é de 
-                    <span class="font-bold bg-red-100 px-1 rounded mx-1 pb-1 border-b border-red-300 border-dotted">${fmt(projectedLoss)} / ano</span>.
-                </p>
+        <div class="score-container text-center">
+            <div class="score-circle-lg">
+                <span class="text-xs font-bold text-slate-400 uppercase">Risco</span>
+                <span class="text-xl font-bold text-red-500">ALTO</span>
             </div>
             
-            <div class="flex flex-col gap-3">
-                <h4 class="font-bold text-slate-900 border-b pb-2">Pontos Críticos:</h4>
-                <div class="space-y-3 text-slate-700 text-sm">
-                    <div class="flex gap-3">
-                        <span class="text-red-500 font-bold">●</span>
-                        <div><strong class="text-slate-900 block">Recrutamento "Jogo de Rede":</strong> Atrai volume, mas falha no filtro de qualidade.</div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Seu Dinheiro Está Evaporando</h3>
+            <p class="text-sm text-slate-500 max-w-sm mx-auto">
+                Identificamos gargalos graves na sua gestão de revendedoras.
+            </p>
+
+            <div class="insight-grid">
+                <!-- Loss Card -->
+                <div class="insight-card insight-danger">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                        <span class="font-bold uppercase text-xs tracking-wider">Projeção de Perda Anual</span>
                     </div>
-                    <div class="flex gap-3">
-                        <span class="text-red-500 font-bold">●</span>
-                        <div><strong class="text-slate-900 block">Gestão Reativa (Zumbi):</strong> Rotina consumida por cobrança e "babá".</div>
+                    <div class="text-2xl font-bold mb-1">${fmt(annualLoss)}</div>
+                    <p class="text-xs opacity-80">Dinheiro que sai do seu caixa sem retorno se não houver blindagem.</p>
+                </div>
+
+                <!-- Opportunity Card -->
+                <div class="insight-card insight-success">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold uppercase text-xs tracking-wider">Potencial Blindado</span>
                     </div>
+                    <p class="text-sm font-medium">
+                        Com o método de <strong>Análise Psicográfica</strong>, você pode reduzir essa perda em até 90% já no próximo ciclo.
+                    </p>
                 </div>
             </div>
         </div>
@@ -311,14 +364,14 @@ function goToVSL() {
     const VSL_BASE = "https://maparevendedoras.netlify.app/";
     const eid = genEventId();
 
-    // UPDATED: Elite Tracking Logic
-    // We send the 'Lead' event with Value: 47 (Product Price) 
-    // AND custom data with the 'pain' metrics.
+    // ELITE TRACKING (R$ 47 + Prediction)
     fireMetaEvent("Lead", {
         value: 47.00,
         currency: 'BRL',
-        predicted_loss: userState.financialLoss,
-        team_size_tier: userState.baseSize
+        custom_data: {
+            predicted_loss: userState.financialLoss,
+            team_size_tier: userState.baseSize
+        }
     }, eid);
 
     const target = new URL(VSL_BASE);
