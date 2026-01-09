@@ -6,3 +6,6 @@
 
 [context.deploy-preview.environment]
   NETLIFY_BLOBS_CONTEXT = "deploy-preview"
+
+[functions]
+  netlify_blobs = ["analytics"]
