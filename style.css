@@ -1,0 +1,79 @@
+/* Global Styles & Utilities */
+:root {
+    --primary: #08418e;
+    --accent: #2cc6b6;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optimize Fonts */
+@font-face {
+    font-family: 'Inter';
+    font-display: swap; /* Performance update */
+}
+
+/* Glassmorphism Classes */
+.glass-card {
+    background: rgba(255, 255, 255, 0.9); /* Slightly more opaque for performance/readability */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Button Animations */
+@keyframes pulse-scale {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(44, 198, 182, 0.7); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(44, 198, 182, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(44, 198, 182, 0); }
+}
+
+.scale-in-out-pulse {
+    animation: pulse-scale 2s infinite;
+}
+
+/* Shimmer Animation for Progress Bar */
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+    animation: shimmer 2s infinite;
+}
+
+/* Option Card Styling */
+.option-card {
+    transition: all 0.2s ease-out; /* Faster transition */
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.option-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background-color: #f0fdfc;
+}
+
+/* Selected State for Options */
+.option-card.selected {
+    border-color: var(--accent);
+    background-color: #e6fffa;
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+.option-card.selected .option-circle {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.option-circle {
+    transition: all 0.2s ease;
+}
+
+.option-card.selected .option-check {
+    opacity: 1;
+    transform: scale(1);
+}
