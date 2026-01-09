@@ -188,8 +188,15 @@
                     }
 
                     renderFunnel(aggregated, hasData);
-                    statusLabel.innerText = "ONLINE (v1.1)";
-                    statusLabel.style.color = "#10b981"; // Emerald
+
+                    const statusText = data.status || "UNKNOWN";
+                    statusLabel.innerText = `ONLINE (${statusText})`;
+
+                    if (statusText === "PERSISTENT") {
+                        statusLabel.style.color = "#10b981"; // Green
+                    } else {
+                        statusLabel.style.color = "#f59e0b"; // Orange/Warning for Volatile
+                    }
                     return;
                 } else {
                     // Try to get error text
