@@ -1,2 +1,8 @@
 [build]
   functions = "netlify/functions"
+
+[context.production.environment]
+  NETLIFY_BLOBS_CONTEXT = "production"
+
+[context.deploy-preview.environment]
+  NETLIFY_BLOBS_CONTEXT = "deploy-preview"
