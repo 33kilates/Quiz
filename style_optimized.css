@@ -591,3 +591,11 @@ footer {
         height: 100vw;
     }
 }
+
+/* --- LOGIC FIXES (Global) --- */
+/* The JS adds .flex to these containers during fade-in, which defaults to row. 
+   We MUST force column to ensure the header sits ON TOP of the card, not sideways. */
+#quiz-container,
+#result-screen {
+    flex-direction: column !important;
+}
