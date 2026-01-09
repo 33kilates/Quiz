@@ -1,4 +1,4 @@
-// netlify/functions/capi.js
+
 export async function handler(event) {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -42,7 +42,8 @@ export async function handler(event) {
     };
   }
 
-  const { event_name, event_id, event_source_url, fbp, fbc } = body || {};
+  // UPDATED: Now extracting custom_data to pass value/currency
+  const { event_name, event_id, event_source_url, fbp, fbc, custom_data } = body || {};
 
   if (!event_name || !event_id) {
     return {
@@ -54,7 +55,7 @@ export async function handler(event) {
 
   const event_time = Math.floor(Date.now() / 1000);
 
-  // IP/UA (Netlify geralmente coloca o IP real aqui)
+  // IP/UA (Netlify usually puts the real IP here)
   const clientIp =
     event.headers["x-nf-client-connection-ip"] ||
     (event.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
@@ -76,6 +77,8 @@ export async function handler(event) {
           ...(fbp ? { fbp } : {}),
           ...(fbc ? { fbc } : {}),
         },
+        // UPDATED: Passing custom data (value, currency, predicted_loss)
+        custom_data: custom_data || {},
       },
     ],
   };
@@ -98,7 +101,6 @@ export async function handler(event) {
     };
   }
 
-  // ✅ NÃO mascarar erro
   if (!resp.ok || data?.error) {
     return {
       statusCode: 502,
