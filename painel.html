@@ -188,15 +188,24 @@
                     }
 
                     renderFunnel(aggregated, hasData);
-                    statusLabel.innerText = "ONLINE";
+                    statusLabel.innerText = "ONLINE (v1.1)";
+                    statusLabel.style.color = "#10b981"; // Emerald
                     return;
+                } else {
+                    // Try to get error text
+                    const errText = await res.text();
+                    statusLabel.innerText = `ERRO ${res.status}: ${errText.substring(0, 50)}`;
+                    statusLabel.style.color = "#ef4444"; // Red
+                    console.error("Analytics Error:", errText);
                 }
             } catch (e) {
+                statusLabel.innerText = `ERRO JS: ${e.message}`;
+                statusLabel.style.color = "#ef4444";
                 console.error(e);
             }
 
-            // If error or empty
-            statusLabel.innerText = "OFFLINE/EMPTY";
+            // If error or empty logic handled above
+
             renderFunnel({ visits: 0, start: 0, q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, leads: 0 }, false);
         }
 
