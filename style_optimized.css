@@ -682,30 +682,36 @@ footer {
     /* QUIZ HEADER - Fix "Sidebar" effect */
     /* The user likely saw the header elements squished or taking up distinct columns */
     /* We will stack them nicely or ensure they fit */
+    /* QUIZ HEADER - ULTRA COMPACT */
     #quiz-container .flex.justify-between.items-end.mb-6 {
         flex-direction: row;
-        /* Keep row */
-        flex-wrap: wrap;
-        /* Allow wrapping */
-        gap: 0.5rem;
-        margin-bottom: 1.5rem !important;
+        gap: 0.25rem;
+        margin-bottom: 0.5rem !important;
+        /* Drastic reduction from 1.5rem */
         align-items: center !important;
     }
 
+    /* Small text adjustments for header */
+    #quiz-container .text-sm {
+        font-size: 0.75rem !important;
+    }
+
+    #quiz-container .text-xs {
+        font-size: 0.65rem !important;
+    }
+
     /* CARD STYLING - COMPACT FOR MOBILE */
+    /* CARD STYLING - ULTRA COMPACT */
     .glass-card {
-        padding: 1.5rem 1rem !important;
-        /* Reduced padding from 2rem 1.5rem */
+        padding: 1rem 0.75rem !important;
+        /* Very tight padding */
+        border-radius: 0.75rem;
         width: 100% !important;
-        margin: 0 0 1rem 0 !important;
-        /* Reduced bottom margin */
-        border-radius: 1rem;
+        margin-bottom: 0.5rem !important;
         display: flex;
         flex-direction: column;
         flex: 1;
-        /* Allow it to grow to fill space if needed */
         justify-content: space-between;
-        /* Space out content specifically for Quiz Card */
     }
 
     /* Special handling for Intro Screen to not stretch weirdly */
@@ -716,11 +722,27 @@ footer {
     }
 
     /* COMPACT CONTENT */
+    /* COMPACT CONTENT */
     .animate-content-inner {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem !important;
-        /* Decreased gap from 1.5rem to 0.75rem */
+        gap: 0.5rem !important;
+        /* Minimal gap */
+    }
+
+    .animate-content-inner .mb-4 {
+        margin-bottom: 0.25rem !important;
+        /* Header inside card */
+    }
+
+    .animate-content-inner .mb-5 {
+        margin-bottom: 0.75rem !important;
+        /* Question bottom margin */
+    }
+
+    .animate-content-inner .flex-col.gap-4 {
+        gap: 0.5rem !important;
+        /* Option gap */
     }
 
     /* Reduce "Insight" box padding */
@@ -731,56 +753,51 @@ footer {
     }
 
     /* Typography Adjustments - Readable but compact */
+    /* Typography Adjustments - Ultra Compact */
     .text-3xl,
     .md\:text-5xl {
-        font-size: 1.5rem !important;
-        /* Further reduced from 1.75rem */
+        font-size: 1.4rem !important;
         line-height: 1.1;
+    }
+
+    /* Question Title */
+    .text-xl {
+        font-size: 1rem !important;
+        /* 16px usually */
+        line-height: 1.25 !important;
     }
 
     .text-2xl {
         font-size: 1.25rem !important;
     }
 
-    /* Question specific: 1.1rem seems good for mobile readability without taking half screen */
-    .text-xl {
-        font-size: 1.1rem !important;
-        line-height: 1.3 !important;
-    }
-
-    /* Option Typography */
+    /* Options Text */
     .option-card span {
-        font-size: 0.9rem !important;
-    }
-
-    /* Adjust Buttons and Inputs */
-    .btn {
-        width: 100%;
-        justify-content: center;
-        padding: 1rem;
-    }
-
-    /* Question Card Specifics */
-    #question-card {
-        min-height: auto !important;
-        padding: 1.5rem !important;
+        font-size: 0.85rem !important;
+        line-height: 1.2;
     }
 
     /* Option Cards - Slimmer */
     .option-card {
-        padding: 0.75rem !important;
-        /* Reduced from 1rem */
-        width: 100%;
+        padding: 0.6rem 0.75rem !important;
+        /* Very slim options */
+        border-radius: 0.5rem;
         margin-bottom: 0 !important;
     }
 
-    /* Quiz Controls / Next Button - STICKY OR COMPACT */
+    /* Quiz Controls / Next Button */
     #quiz-controls {
-        margin-top: 1rem !important;
-        padding-top: 0.75rem !important;
+        margin-top: 0.5rem !important;
+        padding-top: 0.5rem !important;
         height: auto !important;
-        /* Allow auto height */
         padding-bottom: 0;
+    }
+
+    .btn {
+        padding: 0.75rem !important;
+        font-size: 0.875rem !important;
+        width: 100%;
+        justify-content: center;
     }
 
     /* Fix Blobs overflowing */
