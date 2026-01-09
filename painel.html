@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMANDO: Controle de Retenção</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .cyber-card {
+            border: 1px solid #1a1a1a;
+            background: #0a0a0a;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+
+        .cyber-header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .funnel-bar {
+            height: 1.5rem;
+            background: #111;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .funnel-fill {
+            height: 100%;
+            background: #00ff00;
+            width: 0%;
+            transition: width 1s ease;
+            opacity: 0.7;
+        }
+
+        .alert-red {
+            color: #ff0000;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+
+        .alert-bg {
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        /* Grid Pattern */
+        .bg-grid {
+            background-image: linear-gradient(#111 1px, transparent 1px),
+                linear-gradient(90deg, #111 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+
+<body class="bg-grid min-h-screen p-6 md:p-12">
+
+    <div class="max-w-6xl mx-auto space-y-12">
+
+        <!-- Header -->
+        <header class="flex justify-between items-end border-b border-green-900/50 pb-6">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tighter text-white">RAIO-X <span
+                        class="text-green-500">RETENÇÃO</span></h1>
+                <p class="text-xs text-green-700 mt-2">DADOS EM TEMPO REAL // PROTOCOLO DE OTIMIZAÇÃO</p>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-500">ÚLTIMA ATUALIZAÇÃO</div>
+                <div id="last-update" class="text-green-400 font-bold">--:--:--</div>
+                <button onclick="fetchData()"
+                    class="mt-2 text-[10px] border border-green-800 text-green-800 px-3 py-1 hover:bg-green-900/20 transition">REFRESH</button>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="cyber-card p-6 rounded relative overflow-hidden">
+                <div class="stat-label">Visitantes Totais</div>
+                <div id="total-visits" class="stat-value text-white">0</div>
+                <div class="absolute top-0 right-0 p-2 opacity-20 text-4xl">👀</div>
+            </div>
+            <div class="cyber-card p-6 rounded relative overflow-hidden">
+                <div class="stat-label">Leads Gerados</div>
+                <div id="total-leads" class="stat-value text-green-400">0</div>
+                <div class="absolute top-0 right-0 p-2 opacity-20 text-4xl">💰</div>
+            </div>
+            <div class="cyber-card p-6 rounded relative overflow-hidden">
+                <div class="stat-label">Taxa de Conversão</div>
+                <div id="conversion-rate" class="stat-value text-blue-400">0%</div>
+                <div class="absolute top-0 right-0 p-2 opacity-20 text-4xl">📈</div>
+            </div>
+            <div class="cyber-card p-6 rounded relative overflow-hidden border-red-900/30">
+                <div class="stat-label text-red-700">Ponto de Fuga Crítico</div>
+                <div id="worst-dropoff" class="text-xl font-bold text-red-500 mt-2">Calculando...</div>
+                <div class="absolute top-0 right-0 p-2 opacity-20 text-4xl">⚠️</div>
+            </div>
+        </div>
+
+        <!-- Funnel View -->
+        <div class="cyber-card p-8 rounded-lg">
+            <h2 class="text-xl text-white mb-8 border-l-4 border-green-500 pl-4">ANÁLISE DE FUNIL</h2>
+            <div id="funnel-container" class="space-y-6">
+                <!-- Javascript injects rows here -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const MOCK_DATA = {
+            visits: 142,
+            start: 110,
+            q1: 105,
+            q2: 98,
+            q3: 80, // Big drop simulation
+            q4: 75,
+            q5: 72,
+            q6: 70,
+            leads: 68
+        };
+
+        async function fetchData() {
+            document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
+
+            // In a real scenario, this fetches from /netlify/functions/analytics
+            // For now, we simulate or use local storage to demonstrate
+
+            // Try to fetch real data
+            try {
+                const res = await fetch('/.netlify/functions/analytics');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.stats) renderFunnel(data.stats);
+                    else renderFunnel(MOCK_DATA); // Fallback
+                } else {
+                    renderFunnel(MOCK_DATA);
+                }
+            } catch (e) {
+                console.log("Using Mock Data for Visuals");
+                renderFunnel(MOCK_DATA);
+            }
+        }
+
+        function renderFunnel(data) {
+            // Mapping keys to readable names
+            const steps = [
+                { key: 'visits', label: 'Tela Inicial (Visitas)', count: data.visits || 0 },
+                { key: 'start', label: 'Iniciou Quiz', count: data.start || 0 },
+                { key: 'q1', label: 'Q1: Volume', count: data.q1 || 0 },
+                { key: 'q2', label: 'Q2: Sangria', count: data.q2 || 0 },
+                { key: 'q3', label: 'Q3: Blindagem', count: data.q3 || 0 },
+                { key: 'q4', label: 'Q4: Doença', count: data.q4 || 0 },
+                { key: 'q5', label: 'Q5: CEO', count: data.q5 || 0 },
+                { key: 'q6', label: 'Q6: Ultimato', count: data.q6 || 0 },
+                { key: 'leads', label: 'Visualizou Diagnóstico (Leads)', count: data.leads || 0 }
+            ];
+
+            const max = steps[0].count || 1;
+            const container = document.getElementById('funnel-container');
+            container.innerHTML = '';
+
+            // Update KPIs
+            document.getElementById('total-visits').innerText = steps[0].count;
+            const leadCount = steps[steps.length - 1].count;
+            document.getElementById('total-leads').innerText = leadCount;
+            document.getElementById('conversion-rate').innerText = ((leadCount / max) * 100).toFixed(1) + '%';
+
+            let worstDrop = { step: '', percent: 0 };
+
+            steps.forEach((step, index) => {
+                const prev = index > 0 ? steps[index - 1].count : step.count;
+                const ret = prev > 0 ? (step.count / prev) * 100 : 0;
+                const drop = 100 - ret;
+
+                // Track worst drop (ignore step 0)
+                if (index > 0 && drop > worstDrop.percent) {
+                    worstDrop = { step: step.label, percent: drop };
+                }
+
+                // Visuals
+                const width = (step.count / max) * 100;
+                const colorClass = drop > 20 && index > 0 ? 'bg-red-500' : 'bg-green-500';
+                const textClass = drop > 20 && index > 0 ? 'text-red-500' : 'text-green-500';
+
+                const html = `
+                    <div class="relative group">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-white font-bold">${step.label}</span>
+                            <div class="flex gap-4">
+                                <span class="text-gray-500">${step.count} usuários</span>
+                                <span class="${textClass} font-mono w-16 text-right">${index === 0 ? '100%' : ret.toFixed(1) + '%'}</span>
+                            </div>
+                        </div>
+                        <div class="funnel-bar">
+                            <div class="funnel-fill ${colorClass}" style="width: ${width}%"></div>
+                            <div class="absolute inset-0 flex items-center pl-2 opacity-0 group-hover:opacity-100 transition duration-300">
+                                <span class="text-[10px] text-black font-bold uppercase">Perda nesta etapa: ${index === 0 ? '0' : drop.toFixed(1)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+
+            document.getElementById('worst-dropoff').innerText = worstDrop.percent > 0
+                ? `${worstDrop.step} (-${worstDrop.percent.toFixed(1)}%)`
+                : "Funil Saudável";
+        }
+
+        fetchData();
+    </script>
+</body>
+
+</html>
