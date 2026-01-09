@@ -70,6 +70,14 @@
                 linear-gradient(90deg, #111 1px, transparent 1px);
             background-size: 20px 20px;
         }
+
+        input[type="date"] {
+            background: #111;
+            color: #0f0;
+            border: 1px solid #333;
+            padding: 4px 8px;
+            font-family: inherit;
+        }
     </style>
 </head>
 
@@ -77,18 +85,32 @@
 
     <div class="max-w-6xl mx-auto space-y-12">
 
-        <!-- Header -->
-        <header class="flex justify-between items-end border-b border-green-900/50 pb-6">
+        <!-- Header & Filters -->
+        <header class="flex flex-col md:flex-row justify-between items-end border-b border-green-900/50 pb-6 gap-6">
             <div>
                 <h1 class="text-3xl font-bold tracking-tighter text-white">RAIO-X <span
                         class="text-green-500">RETENÇÃO</span></h1>
-                <p class="text-xs text-green-700 mt-2">DADOS EM TEMPO REAL // PROTOCOLO DE OTIMIZAÇÃO</p>
+                <p class="text-xs text-green-700 mt-2">DADOS REAIS // SEM SIMULAÇÃO</p>
             </div>
-            <div class="text-right">
-                <div class="text-xs text-gray-500">ÚLTIMA ATUALIZAÇÃO</div>
-                <div id="last-update" class="text-green-400 font-bold">--:--:--</div>
-                <button onclick="fetchData()"
-                    class="mt-2 text-[10px] border border-green-800 text-green-800 px-3 py-1 hover:bg-green-900/20 transition">REFRESH</button>
+
+            <div class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex gap-2 items-center">
+                    <div class="flex flex-col">
+                        <label class="text-[10px] text-gray-500">INÍCIO</label>
+                        <input type="date" id="date-start" onchange="fetchData()">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[10px] text-gray-500">FIM</label>
+                        <input type="date" id="date-end" onchange="fetchData()">
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <div class="text-xs text-gray-500">STATUS</div>
+                    <div id="connection-status" class="text-green-400 font-bold text-xs">ONLINE</div>
+                    <button onclick="fetchData()"
+                        class="mt-2 text-[10px] border border-green-800 text-green-800 px-3 py-1 hover:bg-green-900/20 transition">ATUALIZAR</button>
+                </div>
             </div>
         </header>
 
@@ -111,7 +133,7 @@
             </div>
             <div class="cyber-card p-6 rounded relative overflow-hidden border-red-900/30">
                 <div class="stat-label text-red-700">Ponto de Fuga Crítico</div>
-                <div id="worst-dropoff" class="text-xl font-bold text-red-500 mt-2">Calculando...</div>
+                <div id="worst-dropoff" class="text-xl font-bold text-red-500 mt-2">--</div>
                 <div class="absolute top-0 right-0 p-2 opacity-20 text-4xl">⚠️</div>
             </div>
         </div>
@@ -119,50 +141,83 @@
         <!-- Funnel View -->
         <div class="cyber-card p-8 rounded-lg">
             <h2 class="text-xl text-white mb-8 border-l-4 border-green-500 pl-4">ANÁLISE DE FUNIL</h2>
-            <div id="funnel-container" class="space-y-6">
-                <!-- Javascript injects rows here -->
+            <div id="funnel-container" class="space-y-6 text-center text-gray-500 py-12">
+                Carregando dados do servidor...
             </div>
         </div>
 
     </div>
 
     <script>
-        const MOCK_DATA = {
-            visits: 142,
-            start: 110,
-            q1: 105,
-            q2: 98,
-            q3: 80, // Big drop simulation
-            q4: 75,
-            q5: 72,
-            q6: 70,
-            leads: 68
-        };
+        // Init Dates (Last 7 Days)
+        const today = new Date();
+        const lastWeek = new Date();
+        lastWeek.setDate(today.getDate() - 7);
+
+        document.getElementById('date-end').valueAsDate = today;
+        document.getElementById('date-start').valueAsDate = lastWeek;
 
         async function fetchData() {
-            document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
+            const startInput = document.getElementById('date-start').value;
+            const endInput = document.getElementById('date-end').value;
+            const container = document.getElementById('funnel-container');
+            const statusLabel = document.getElementById('connection-status');
 
-            // In a real scenario, this fetches from /netlify/functions/analytics
-            // For now, we simulate or use local storage to demonstrate
+            statusLabel.innerText = "BUSCANDO...";
 
-            // Try to fetch real data
             try {
                 const res = await fetch('/.netlify/functions/analytics');
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.stats) renderFunnel(data.stats);
-                    else renderFunnel(MOCK_DATA); // Fallback
-                } else {
-                    renderFunnel(MOCK_DATA);
+                    const history = data.history || {};
+
+                    // AGGREGATE DATA BASED ON DATE RANGE
+                    const aggregated = {
+                        visits: 0, start: 0, q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, leads: 0
+                    };
+
+                    let hasData = false;
+
+                    for (const [dateStr, stats] of Object.entries(history)) {
+                        if (dateStr >= startInput && dateStr <= endInput) {
+                            hasData = true;
+                            for (const key in aggregated) {
+                                aggregated[key] += (stats[key] || 0);
+                            }
+                        }
+                    }
+
+                    renderFunnel(aggregated, hasData);
+                    statusLabel.innerText = "ONLINE";
+                    return;
                 }
             } catch (e) {
-                console.log("Using Mock Data for Visuals");
-                renderFunnel(MOCK_DATA);
+                console.error(e);
             }
+
+            // If error or empty
+            statusLabel.innerText = "OFFLINE/EMPTY";
+            renderFunnel({ visits: 0, start: 0, q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, leads: 0 }, false);
         }
 
-        function renderFunnel(data) {
-            // Mapping keys to readable names
+        function renderFunnel(data, hasData) {
+            const container = document.getElementById('funnel-container');
+
+            if (!hasData && data.visits === 0) {
+                container.innerHTML = `
+                    <div class="py-12 border border-dashed border-gray-800 rounded">
+                        <p class="text-gray-500 font-mono">NENHUM DADO ENCONTRADO NO PERÍODO SELECIONADO</p>
+                        <p class="text-xs text-gray-700 mt-2">Aguardando tráfego...</p>
+                    </div>
+                `;
+                // Zero stats
+                document.getElementById('total-visits').innerText = "0";
+                document.getElementById('total-leads').innerText = "0";
+                document.getElementById('conversion-rate').innerText = "0%";
+                document.getElementById('worst-dropoff').innerText = "--";
+                return;
+            }
+
             const steps = [
                 { key: 'visits', label: 'Tela Inicial (Visitas)', count: data.visits || 0 },
                 { key: 'start', label: 'Iniciou Quiz', count: data.start || 0 },
@@ -176,46 +231,53 @@
             ];
 
             const max = steps[0].count || 1;
-            const container = document.getElementById('funnel-container');
             container.innerHTML = '';
 
             // Update KPIs
             document.getElementById('total-visits').innerText = steps[0].count;
             const leadCount = steps[steps.length - 1].count;
             document.getElementById('total-leads').innerText = leadCount;
-            document.getElementById('conversion-rate').innerText = ((leadCount / max) * 100).toFixed(1) + '%';
+            document.getElementById('conversion-rate').innerText = max > 0 ? ((leadCount / max) * 100).toFixed(1) + '%' : '0%';
 
             let worstDrop = { step: '', percent: 0 };
 
             steps.forEach((step, index) => {
                 const prev = index > 0 ? steps[index - 1].count : step.count;
+                // Avoid division by zero
+                const safePrev = prev === 0 ? 1 : prev;
+
                 const ret = prev > 0 ? (step.count / prev) * 100 : 0;
                 const drop = 100 - ret;
 
                 // Track worst drop (ignore step 0)
-                if (index > 0 && drop > worstDrop.percent) {
+                if (index > 0 && drop > worstDrop.percent && prev > 0) {
                     worstDrop = { step: step.label, percent: drop };
                 }
 
-                // Visuals
-                const width = (step.count / max) * 100;
-                const colorClass = drop > 20 && index > 0 ? 'bg-red-500' : 'bg-green-500';
-                const textClass = drop > 20 && index > 0 ? 'text-red-500' : 'text-green-500';
+                // Visual Bars
+                // Calculate width relative to Max (visits) to show absolute funnel shape
+                const width = max > 0 ? (step.count / max) * 100 : 0;
+
+                const colorClass = drop > 25 && index > 0 ? 'bg-red-500' : 'bg-green-500';
+                const textClass = drop > 25 && index > 0 ? 'text-red-500' : 'text-green-500';
 
                 const html = `
                     <div class="relative group">
                         <div class="flex justify-between text-sm mb-1">
-                            <span class="text-white font-bold">${step.label}</span>
+                            <span class="text-white font-bold tracking-widest text-xs md:text-sm">${step.label}</span>
                             <div class="flex gap-4">
-                                <span class="text-gray-500">${step.count} usuários</span>
-                                <span class="${textClass} font-mono w-16 text-right">${index === 0 ? '100%' : ret.toFixed(1) + '%'}</span>
+                                <span class="text-gray-500">${step.count}</span>
+                                <span class="${textClass} font-mono w-16 text-right font-bold">${index === 0 ? '100%' : ret.toFixed(1) + '%'}</span>
                             </div>
                         </div>
                         <div class="funnel-bar">
                             <div class="funnel-fill ${colorClass}" style="width: ${width}%"></div>
-                            <div class="absolute inset-0 flex items-center pl-2 opacity-0 group-hover:opacity-100 transition duration-300">
-                                <span class="text-[10px] text-black font-bold uppercase">Perda nesta etapa: ${index === 0 ? '0' : drop.toFixed(1)}%</span>
-                            </div>
+                            
+                            <!-- Tooltip showing drop -->
+                            ${index > 0 ? `
+                            <div class="absolute inset-0 flex items-center pl-2 opacity-50 group-hover:opacity-100 transition duration-300">
+                                <span class="text-[10px] text-black font-bold uppercase bg-white/80 px-1 rounded">Perda: -${drop.toFixed(1)}%</span>
+                            </div>` : ''}
                         </div>
                     </div>
                 `;
@@ -224,9 +286,10 @@
 
             document.getElementById('worst-dropoff').innerText = worstDrop.percent > 0
                 ? `${worstDrop.step} (-${worstDrop.percent.toFixed(1)}%)`
-                : "Funil Saudável";
+                : "Sem perdas";
         }
 
+        // Init load
         fetchData();
     </script>
 </body>

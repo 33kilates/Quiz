@@ -1,18 +1,15 @@
 
 // netlify/functions/analytics.js
-// NOTE: For persistent storage in production, enable Netlify Blobs or connect a DB.
-// This is an in-memory fallback pattern that works efficiently for demo/short-term sessions in lambda containers.
 
-let memoryStats = {
-    visits: 0,
-    start: 0,
-    q1: 0,
-    q2: 0,
-    q3: 0,
-    q4: 0,
-    q5: 0,
-    q6: 0,
-    leads: 0
+// STORAGE (In-Memory Fallback)
+// NOTE: On Netlify (Serverless), this variable resets when the function goes cold.
+// For permanent data, you must enable Netlify Blobs or use a Database.
+// This logic is prepared for that: it uses a "store" object.
+
+let store = {
+    // Structure:
+    // "2024-01-08": { visits: 5, start: 2, ... }
+    // "2024-01-09": { visits: 12, start: 10, ... }
 };
 
 export async function handler(event) {
@@ -26,34 +23,48 @@ export async function handler(event) {
         return { statusCode: 204, headers, body: "" };
     }
 
-    // GET: Return stats
+    // --- GET: RETURN HISTORY ---
     if (event.httpMethod === "GET") {
-        // In a real implementation, fetch from Blob store here
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({ stats: memoryStats })
+            body: JSON.stringify({ history: store })
         };
     }
 
-    // POST: Track event
+    // --- POST: TRACK EVENT ---
     if (event.httpMethod === "POST") {
         try {
             const body = JSON.parse(event.body || "{}");
-            const step = body.step; // 'visits', 'start', 'q1', etc.
+            const step = body.step;
 
-            if (step && memoryStats.hasOwnProperty(step)) {
-                memoryStats[step]++;
-                // In real implementation, write to Blob store here
+            if (!step) return { statusCode: 400, headers, body: "{}" };
+
+            // Get Today's Date (Brazil Time usually implies -03:00, or simplify to UTC)
+            // We'll use simple ISO date part YYYY-MM-DD
+            const today = new Date().toISOString().split('T')[0];
+
+            // Init bucket if needed
+            if (!store[today]) {
+                store[today] = { visits: 0, start: 0, q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, leads: 0 };
+            }
+
+            // Increment
+            if (store[today][step] !== undefined) {
+                store[today][step]++;
+            } else {
+                // Should not happen if schema matches, but safety fallback
+                store[today][step] = 1;
             }
 
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify({ ok: true, current: memoryStats[step] })
+                body: JSON.stringify({ ok: true, date: today, current: store[today][step] })
             };
         } catch (e) {
-            return { statusCode: 400, headers, body: "{}" };
+            console.error(e);
+            return { statusCode: 400, headers, body: "Error" };
         }
     }
 
