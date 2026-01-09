@@ -1,0 +1,10 @@
+{
+  "name": "quiz-otimizado",
+  "version": "1.0.0",
+  "description": "Quiz Otimizado com Analytics via Netlify Blobs",
+  "main": "index.js",
+  "dependencies": {
+    "@netlify/blobs": "^7.0.0"
+  },
+  "type": "module"
+}

@@ -1,16 +1,9 @@
-
 // netlify/functions/analytics.js
+import { getStore } from "@netlify/blobs";
 
-// STORAGE (In-Memory Fallback)
-// NOTE: On Netlify (Serverless), this variable resets when the function goes cold.
-// For permanent data, you must enable Netlify Blobs or use a Database.
-// This logic is prepared for that: it uses a "store" object.
-
-let store = {
-    // Structure:
-    // "2024-01-08": { visits: 5, start: 2, ... }
-    // "2024-01-09": { visits: 12, start: 10, ... }
-};
+// Initialize Blob Store
+// We use a store named 'analytics'
+const getAnalyticsStore = () => getStore({ name: "analytics", consistency: "strong" });
 
 export async function handler(event) {
     const headers = {
@@ -23,50 +16,76 @@ export async function handler(event) {
         return { statusCode: 204, headers, body: "" };
     }
 
-    // --- GET: RETURN HISTORY ---
-    if (event.httpMethod === "GET") {
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({ history: store })
-        };
-    }
+    try {
+        const store = getAnalyticsStore();
+        const today = new Date().toISOString().split('T')[0];
+        const key = `daily:${today}`;
 
-    // --- POST: TRACK EVENT ---
-    if (event.httpMethod === "POST") {
-        try {
-            const body = JSON.parse(event.body || "{}");
-            const step = body.step;
+        // --- GET: RETURN HISTORY ---
+        if (event.httpMethod === "GET") {
+            // List all daily keys
+            const { blobs } = await store.list({ prefix: "daily:" });
+            const history = {};
 
-            if (!step) return { statusCode: 400, headers, body: "{}" };
-
-            // Get Today's Date (Brazil Time usually implies -03:00, or simplify to UTC)
-            // We'll use simple ISO date part YYYY-MM-DD
-            const today = new Date().toISOString().split('T')[0];
-
-            // Init bucket if needed
-            if (!store[today]) {
-                store[today] = { visits: 0, start: 0, q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, leads: 0 };
-            }
-
-            // Increment
-            if (store[today][step] !== undefined) {
-                store[today][step]++;
-            } else {
-                // Should not happen if schema matches, but safety fallback
-                store[today][step] = 1;
+            // Fetch all daily data (optimized: could limit to last 7 days)
+            // For now, let's just fetch the simplified list or last 7 specifically if needed.
+            // To keep it fast, we might just return the last 30 entries.
+            for (const blob of blobs) {
+                const dateStr = blob.key.replace("daily:", "");
+                // Simple fetch for each (can be parallelized)
+                const data = await store.get(blob.key, { type: "json" });
+                history[dateStr] = data || {};
             }
 
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify({ ok: true, date: today, current: store[today][step] })
+                body: JSON.stringify({ history })
             };
-        } catch (e) {
-            console.error(e);
-            return { statusCode: 400, headers, body: "Error" };
         }
-    }
 
-    return { statusCode: 405, headers, body: "Method Not Allowed" };
+        // --- POST: TRACK EVENT ---
+        if (event.httpMethod === "POST") {
+            const body = JSON.parse(event.body || "{}");
+            const step = body.step;
+
+            if (!step) return { statusCode: 400, headers, body: "{}" };
+
+            // Optmistic Update or Read-Modify-Write
+            // Native atomic increments aren't direct in Blobs without some logic, 
+            // but for this traffic level, read-modify-write is okay with strong consistency.
+
+            let currentDayData = await store.get(key, { type: "json" });
+
+            if (!currentDayData) {
+                currentDayData = { visits: 0, start: 0, q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, leads: 0 };
+            }
+
+            // Increment
+            if (currentDayData[step] !== undefined) {
+                currentDayData[step]++;
+            } else {
+                currentDayData[step] = 1;
+            }
+
+            // Save back
+            await store.set(key, JSON.stringify(currentDayData));
+
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify({ ok: true, date: today, current: currentDayData[step] })
+            };
+        }
+
+        return { statusCode: 405, headers, body: "Method Not Allowed" };
+
+    } catch (e) {
+        console.error("Analytics Error:", e);
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: "Internal Server Error", details: e.message })
+        };
+    }
 }
