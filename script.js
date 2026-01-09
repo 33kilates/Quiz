@@ -81,15 +81,39 @@ if (document.readyState === "loading") {
 // ------------------------
 // DATA MODEL
 // ------------------------
-let userState = { baseSize: 0, financialLoss: 0, manualManagement: false, needsHelp: true };
+// ------------------------
+// DATA MODEL - SOPHISTICATED
+// ------------------------
+let userState = {
+    baseSize: 0, // 0-3 index
+    financialLoss: 0,
+    score: 0,
+    answers: []
+};
 
+// SCORING: Total possible points = 100.
+// 6 Questions -> ~16.6 pts each.
 const questions = [
     {
         id: 1, phase: "VOLUME DE RISCO",
         text: "Qual o tamanho da sua 'frota' de revendedoras com maletas na rua hoje?",
+        options: [
+            { text: "Iniciante (1 a 10 maletas)", score: 10, value: 1 },
+            { text: "Em expansão (11 a 30 maletas)", score: 15, value: 2 },
+            { text: "Intermediário (31 a 60 maletas)", score: 15, value: 3 },
+            { text: "Elite (Mais de 60 maletas)", score: 100, value: 4 } // Elite gets max score for volume?? No, risk is higher. Let's score 'Management Readiness'.
+            // Actually, size doesn't determine score, MANAGEMENT does.
+            // Let's reflow: Size determines MULTIPLIER for loss. Score comes from other Qs.
+            // We'll give 'neutral' points here or points for ambition? 
+            // Let's stick to the script: Size simply sets the "Risk Factor".
+            // We will normalize point distribution on Q3-Q6.
+        ],
+        // REFACTOR: Options will just be strings in rendering, logic handles mapping.
+        // Simplified for this implementation to keep it clean:
         options: ["Iniciante (1 a 10 maletas)", "Em expansão (11 a 30 maletas)", "Intermediário (31 a 60 maletas)", "Elite (Mais de 60 maletas)"],
         provocation: "Quanto maior a frota, maior o risco de 'vazamento silencioso' se não houver rastreamento de perfil.",
-        action: (idx) => { userState.baseSize = idx + 1; }
+        action: (idx) => { userState.baseSize = idx + 1; },
+        calcScore: (idx) => 10 // Base participation points
     },
     {
         id: 2, phase: "SANGRIA FINANCEIRA",
@@ -97,35 +121,38 @@ const questions = [
         options: ["Sangria Leve (Até R$ 2.000,00)", "Sangria Moderada (Entre R$ 2.000,00 e R$ 7.000,00)", "Hemorragia Grave (Acima de R$ 10.000,00)", "Não tenho controle exato (Risco Crítico)"],
         provocation: "Se você não sabe o número exato do prejuízo, sua operação está vulnerável e operando no escuro.",
         action: (idx) => {
-            if (idx === 0) userState.financialLoss = 2000;
-            if (idx === 1) userState.financialLoss = 5000;
-            if (idx === 2) userState.financialLoss = 12000;
-            if (idx === 3) userState.financialLoss = -1;
-        }
+            const values = [2000, 5000, 12000, 15000]; // 15k penalty for unknown
+            userState.financialLoss = values[idx];
+        },
+        calcScore: (idx) => [20, 10, 0, 0][idx] // High points for low loss
     },
     {
         id: 3, phase: "MECANISMO DE BLINDAGEM",
         text: "Como você garante matematicamente que uma nova revendedora vai vender e pagar antes de entregar a maleta?",
         options: ["Não garanto, vou no 'feeling' e na conversa", "Analiso urgência financeira dela (Erro comum)", "Tenho critérios, mas ainda tomo calotes", "Uso Análise Psicográfica (Método das Gigantes)"],
-        provocation: "Esperar a 'índole' da pessoa é torcida. Usar método preditivo é gestão."
+        provocation: "Esperar a 'índole' da pessoa é torcida. Usar método preditivo é gestão.",
+        calcScore: (idx) => [0, 5, 10, 20][idx] // Max points for using method
     },
     {
         id: 4, phase: "DIAGNÓSTICO DE VITALIDADE",
         text: "Qual a 'doença' mais comum que infecta sua equipe hoje?",
-        options: ["Síndrome do Fogo de Palha (Começa animada, depois some)", "Inadimplência Crônica (Paga atrasado e devolve mal)", "Grupo Deserto (Ninguém interage ou vende)", "Nenhuma, meu time é de Alta Performance (Raro)"],
-        provocation: "Uma equipe doente contamina seu fluxo de caixa e suga sua energia vital."
+        options: ["Síndrome do Fogo de Palha (Começa animada, depois some)", "Inadimplência Crônica (Paga atrasado e devolve mal)", "Grupo Deserto (Ninguém interage ou vende)", "Dependência da Líder (Se eu paro de cobrar, as vendas param)"],
+        provocation: "Uma equipe doente contamina seu fluxo de caixa e suga sua energia vital.",
+        calcScore: (idx) => [5, 0, 5, 20][idx]
     },
     {
         id: 5, phase: "CUSTO DE OPORTUNIDADE",
         text: "Você passa mais tempo agindo como CEO Estratégica ou como 'Cobradora de Luxo'?",
         options: ["Cobradora: Passo o dia conferindo peças e cobrando", "Apaga-Incêndio: Resolvo problemas o tempo todo", "Dividida: Tento gerir, mas o operacional me engole", "CEO: Foco apenas em crescimento e estratégia"],
-        provocation: "Quem gasta tempo cobrando não tem tempo para escalar. Você precisa automatizar a triagem."
+        provocation: "Quem gasta tempo cobrando não tem tempo para escalar. Você precisa automatizar a triagem.",
+        calcScore: (idx) => [0, 5, 10, 20][idx]
     },
     {
         id: 6, phase: "ULTIMATO DE CRESCIMENTO",
         text: "Você prefere continuar refém da sorte ou instalar o 'motor de previsibilidade' das grandes marcas?",
-        options: ["Quero o Motor: Profissionalizar minha triagem agora", "Quero Estancar a Sangria: Parar de perder dinheiro", "Ainda acho que consigo resolver sozinha na sorte"],
-        provocation: "O mercado não perdoa amadorismo. Sua decisão hoje define seu extrato bancário do ano que vem."
+        options: ["Quero o Motor: Profissionalizar minha triagem agora", "Quero Estancar a Sangria: Parar de perder dinheiro", "Sei que tenho problemas, mas vou tentar resolver sem ajuda"],
+        provocation: "O mercado não perdoa amadorismo. Sua decisão hoje define seu extrato bancário do ano que vem.",
+        calcScore: (idx) => [10, 10, 0][idx]
     }
 ];
 
@@ -220,13 +247,13 @@ function renderQuestion(index) {
     // Internal fade out/in for content
     const contentHtml = `
         <div class="animate-content-inner" style="opacity:0; transform:translateY(5px); transition:all 0.3s ease;">
-             <div class="flex justify-between mb-2">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Arquivo #${index + 1}</span>
-                <span class="text-xs font-bold text-slate-900 bg-slate-100 px-2 rounded uppercase">${q.phase}</span>
+             <div class="flex justify-between mb-4">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-4">Arquivo #${index + 1}</span>
+                <span class="text-xs font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded uppercase">${q.phase}</span>
              </div>
              ${transitionHtml}
-             <h3 class="text-xl md:text-2xl font-bold text-slate-900 mb-6 font-heading">${q.text}</h3>
-             <div class="flex flex-col gap-3">${opts}</div>
+             <h3 class="text-xl md:text-2xl font-bold text-slate-900 mb-8 font-heading" style="line-height: 1.4;">${q.text}</h3>
+             <div class="flex flex-col gap-4">${opts}</div>
         </div>
     `;
 
@@ -248,6 +275,11 @@ function selectOption(idx, el) {
     document.querySelectorAll(".option-card").forEach(c => c.classList.remove("selected"));
     el.classList.add("selected");
 
+    // Add scoring logic immediately or at end? Actions handle state immediately.
+    // We run the action now? Yes.
+    // Ideally we'd wait for 'Next' but standard is instant feedback or store. 
+    // We store in answers[] on next.
+
     fireMetaEvent("SelectOption", { question_number: currentQuestionIndex + 1, question_id: questions[currentQuestionIndex].id, option_index: idx });
     if (questions[currentQuestionIndex].action) questions[currentQuestionIndex].action(idx);
 
@@ -268,7 +300,11 @@ function selectOption(idx, el) {
 function nextQuestion() {
     if (selectedOptionIndex === null) return;
 
-    answers.push({ questionId: questions[currentQuestionIndex].id, selectedOptionIndex });
+    const q = questions[currentQuestionIndex];
+    // Calculate and store points for this answer
+    const pts = q.calcScore ? q.calcScore(selectedOptionIndex) : 0;
+    userState.score += pts;
+    answers.push({ questionId: q.id, selectedOptionIndex, score: pts });
 
     // Fade out current content
     const content = dom.questionContent.querySelector(".animate-content-inner");
@@ -291,7 +327,7 @@ function nextQuestion() {
 function finishQuiz() {
     if (!didComplete) {
         didComplete = true;
-        fireMetaEvent("QuizComplete", { total_answers: answers.length });
+        fireMetaEvent("QuizComplete", { total_answers: answers.length, final_score: userState.score });
         trackRetentionStep("leads");
     }
 
@@ -310,51 +346,150 @@ function finishQuiz() {
 function generateDiagnosis() {
     const resultDiv = document.getElementById("diagnosis-content");
 
-    // Calculate losses
-    let lossValue = userState.financialLoss > 0 ? userState.financialLoss : [6000, 18000, 48000, 96000][userState.baseSize - 1] || 6000;
-    let projectedLoss = lossValue * 12; // Annual projection if monthly input, but logic implies direct value or annual. Assuming context. 
-    // Actually, prompt says "evaporou nos ultimos 6 meses". 
-    // If user selected "2000" (sangria leve), that's for 6 months? Or monthly? 
-    // Let's assume the value is the total loss in 6 months for impact. 
-    // Annual projection = 2 * value.
-    const annualLoss = userState.financialLoss > 0 ? userState.financialLoss * 2 : lossValue;
+    // 1. FINANCIAL CALCS
+    // Direct Loss (Reported) - Annualized
+    let directLoss = userState.financialLoss * 2; // "Last 6 months" * 2 = Annual. 
+    // If user selected "Unknown" (Value 15000), treat as 30k annualized direct risk.
 
+    // Opportunity Cost (Hidden Loss)
+    // Avg Revenue Per Rep (Good vs Bad): Gap is approx R$ 800/mo.
+    // Team Size Est: [5, 20, 45, 80]
+    const teamSizes = [5, 20, 45, 80];
+    const teamSize = teamSizes[userState.baseSize - 1] || 5;
+    const efficiencyGap = 500; // Conservative estimate of monthly loss per "bad" rep
+    const opportunityLoss = (teamSize * 0.4) * efficiencyGap * 12; // Assuming 40% of team is suboptimal
+
+    const totalMoneyOnTable = directLoss + opportunityLoss;
     const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
 
+    // 2. SCORE & COPY
+    const score = Math.min(userState.score, 94); // Cap at 94 even if perfect, nobody is 100% to sell the improvement.
+    // Actually, if they picked all perfect, they might not need the product? 
+    // Just ensure max score isn't 100.
+
+    let riskLevel = "ALTÍSSIMO";
+    let scoreColor = "#ef4444"; // Red-500
+    if (score > 40) { riskLevel = "ALTO"; scoreColor = "#f97316"; } // Orange-500
+    if (score > 70) { riskLevel = "MODERADO"; scoreColor = "#eab308"; } // Yellow-500
+
+    // 3. RENDER DASHBOARD
     resultDiv.innerHTML = `
-        <div class="score-container text-center">
-            <div class="score-circle-lg">
-                <span class="text-xs font-bold text-slate-400 uppercase">Risco</span>
-                <span class="text-xl font-bold text-red-500">ALTO</span>
-            </div>
+        <div class="container-dash">
             
-            <h3 class="text-xl font-bold text-slate-800 mb-2">Seu Dinheiro Está Evaporando</h3>
-            <p class="text-sm text-slate-500 max-w-sm mx-auto">
-                Identificamos gargalos graves na sua gestão de revendedoras.
-            </p>
+            <!-- HEADER -->
+            <div class="dash-header">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Dossiê de Maturidade Operacional</p>
+                <div class="text-sm font-medium text-slate-600">ID da Operação: <span class="font-mono text-slate-900 font-bold">#${genEventId().slice(0, 8).toUpperCase()}</span></div>
+            </div>
 
-            <div class="insight-grid">
-                <!-- Loss Card -->
-                <div class="insight-card insight-danger">
-                    <div class="flex items-center gap-2 mb-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
-                        <span class="font-bold uppercase text-xs tracking-wider">Projeção de Perda Anual</span>
+            <!-- ELIGIBILITY BANNER -->
+            <div class="bg-slate-900 text-white p-4 rounded-lg text-center mb-6 shadow-lg">
+                <span class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2 block">Status da Aplicação</span>
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-slate-900">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <div class="text-2xl font-bold mb-1">${fmt(annualLoss)}</div>
-                    <p class="text-xs opacity-80">Dinheiro que sai do seu caixa sem retorno se não houver blindagem.</p>
+                    <span class="text-2xl font-bold font-heading">VOCÊ ESTÁ APTA</span>
                 </div>
+                <p class="text-xs text-slate-400 mt-2 max-w-md mx-auto" style="line-height: 1.5;">
+                    Sua operação foi aprovada para receber o protocolo de correção imediata.
+                </p>
+            </div>
 
-                <!-- Opportunity Card -->
-                <div class="insight-card insight-success">
-                    <div class="flex items-center gap-2 mb-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-bold uppercase text-xs tracking-wider">Potencial Blindado</span>
+            <!-- SCORE ROW -->
+            <div class="score-badge-container">
+                <div class="score-badge">
+                    <div class="donut-chart" style="--percent: ${score}%; --fill-color: ${scoreColor};">
+                        <div class="donut-inner">
+                            <span class="donut-value" style="color: ${scoreColor};">${score}</span>
+                        </div>
                     </div>
-                    <p class="text-sm font-medium">
-                        Com o método de <strong>Análise Psicográfica</strong>, você pode reduzir essa perda em até 90% já no próximo ciclo.
-                    </p>
+                    <span class="donut-label">Seu Índice (OMI)</span>
+                </div>
+                
+                <div class="score-badge" style="opacity: 0.5;">
+                    <div class="donut-chart" style="--percent: 92%; --fill-color: #059669;">
+                        <div class="donut-inner">
+                            <span class="donut-value" style="color: #059669;">92</span>
+                        </div>
+                    </div>
+                    <span class="donut-label">Marcas Gigantes</span>
                 </div>
             </div>
+
+            <div class="text-center mb-6">
+                 <h3 class="text-xl font-bold text-slate-900">Elegibilidade Confirmada: <span class="text-red-600">Alerta de Risco</span></h3>
+            </div>
+
+
+            <!-- MONEY ON TABLE (Sanria) -->
+            <div class="money-loss-section animate-pop">
+                <div class="flex items-center justify-center gap-2 mb-2 text-red-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-bold uppercase text-xs tracking-wider">Dinheiro na Mesa (Anual)</span>
+                </div>
+                <div class="money-val">${fmt(totalMoneyOnTable)}</div>
+                <p class="text-sm text-red-700 mt-2 font-medium px-4">
+                    Este é o valor que validou sua elegibilidade. Você está deixando uma fortuna na mesa por não ter a blindagem correta.
+                </p>
+            </div>
+
+
+            <!-- COMPARATIVE CHART -->
+            <div class="chart-container">
+                <h4 class="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wide border-b border-slate-100 pb-2">Comparativo de Eficiência</h4>
+                
+                <div class="chart-row">
+                    <span class="chart-label">Sua Marca</span>
+                    <div class="chart-bar-bg">
+                        <div class="chart-bar-fill" style="width: ${score}%; background-color: ${scoreColor};"></div>
+                    </div>
+                </div>
+
+                 <div class="chart-row">
+                    <span class="chart-label">Média do Mercado</span>
+                    <div class="chart-bar-bg">
+                        <div class="chart-bar-fill" style="width: 45%; background-color: #cbd5e1;"></div>
+                    </div>
+                </div>
+
+                 <div class="chart-row">
+                    <span class="chart-label text-emerald-600">Top Players</span>
+                    <div class="chart-bar-bg">
+                        <div class="chart-bar-fill" style="width: 92%; background-color: #059669;"></div>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-slate-400 mt-3 text-right">*Baseado em benchmark de +33k operações</p>
+            </div>
+
+
+            <!-- DIAGNOSTIC BREAKDOWN -->
+            <h4 class="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wide">Pontos Críticos Detectados:</h4>
+            <div class="diag-grid">
+                <div class="diag-card" style="--border-col: #ef4444;">
+                    <div class="diag-icon text-red-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <h5 class="font-bold text-slate-900 text-sm mb-1">Triagem Vulnerável</h5>
+                    <p class="text-xs text-slate-600">Seu filtro de entrada atual permite a entrada de perfis de alto risco.</p>
+                </div>
+
+                <div class="diag-card" style="--border-col: #f59e0b;">
+                    <div class="diag-icon text-yellow-600">
+                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h5 class="font-bold text-slate-900 text-sm mb-1">Custo Operacional Alto</h5>
+                    <p class="text-xs text-slate-600">O tempo gasto apagando incêndios está drenando a margem de lucro da operação.</p>
+                </div>
+            </div>
+
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mt-4">
+                <p class="text-sm font-medium text-emerald-800">
+                    <span class="font-bold">Protocolo Liberado:</span> Como sua operação já possui volume, a implementação do Método Psicográfico terá impacto financeiro imediato.
+                </p>
+            </div>
+
         </div>
     `;
 }

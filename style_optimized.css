@@ -22,10 +22,12 @@
     --red-50: #fef2f2;
     --red-500: #ef4444;
     --red-800: #991b1b;
+    --red-gradient: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
 
     --emerald-50: #ecfdf5;
     --emerald-600: #059669;
     --emerald-800: #065f46;
+    --emerald-gradient: linear-gradient(135deg, #10b981 0%, #047857 100%);
 
     --yellow-50: #fefce8;
     --yellow-800: #854d0e;
@@ -229,6 +231,143 @@ h3,
 
 .text-emerald-500 {
     color: var(--emerald-600);
+}
+
+.text-emerald-400 {
+    color: #34d399;
+}
+
+/* Utilities: Sizing */
+.w-4 {
+    width: 1rem;
+}
+
+.h-4 {
+    height: 1rem;
+}
+
+.w-5 {
+    width: 1.25rem;
+}
+
+.h-5 {
+    height: 1.25rem;
+}
+
+.w-6 {
+    width: 1.5rem;
+}
+
+.h-6 {
+    height: 1.5rem;
+}
+
+.w-8 {
+    width: 2rem;
+}
+
+.h-8 {
+    height: 2rem;
+}
+
+.w-full {
+    width: 100%;
+}
+
+/* Utilities: Spacing */
+.p-4 {
+    padding: 1rem;
+}
+
+.py-1 {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+.px-2 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 0.75rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.mb-8 {
+    margin-bottom: 2rem;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 0.75rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.gap-6 {
+    gap: 1.5rem;
+}
+
+/* Utilities: Display */
+.ml-1 {
+    margin-left: 0.25rem;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
+}
+
+.ml-3 {
+    margin-left: 0.75rem;
+}
+
+.ml-4 {
+    margin-left: 1rem;
+}
+
+.ml-6 {
+    margin-left: 1.5rem;
+}
+
+.block {
+    display: block;
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
 }
 
 /* Components */
@@ -543,11 +682,20 @@ footer {
 
     /* CARD STYLING - MIMIC PREVIOUS LAYOUT */
     .glass-card {
-        padding: 1.5rem !important;
+        padding: 2rem 1.5rem !important;
+        /* More vertical padding */
         width: 100% !important;
-        margin: 0 !important;
+        margin: 0 0 2rem 0 !important;
+        /* Bottom margin */
         border-radius: 1rem;
-        /* Slightly smaller radius for mobile */
+    }
+
+    /* More breathing room for questions */
+    .animate-content-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem !important;
+        /* Increased from default gap-3 (0.75rem) */
     }
 
     /* Typography Adjustments - Readable but compact */
@@ -600,53 +748,167 @@ footer {
     flex-direction: column !important;
 }
 
-/* --- RESULT SCREEN POLISH --- */
-.score-container {
-    padding: 2rem;
-    background: radial-gradient(circle at center, rgba(44, 198, 182, 0.1) 0%, transparent 70%);
-}
-
-.score-circle-lg {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin: 0 auto 1.5rem auto;
+/* --- RESULT SCREEN POLISH (NEW DASHBOARD) --- */
+.container-dash {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border: 4px solid var(--accent);
-    background: white;
-    box-shadow: 0 0 20px rgba(44, 198, 182, 0.2);
-    animation: scale-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    gap: 1.5rem;
+    text-align: left;
 }
 
-.insight-grid {
+.dash-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.score-badge-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.score-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.donut-chart {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin-bottom: 0.5rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--fill-color) var(--percent), #e2e8f0 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-inner {
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1;
+    font-family: 'Outfit', sans-serif;
+}
+
+.donut-label {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--slate-400);
+    margin-top: 0.25rem;
+}
+
+/* Comparative Bar Chart */
+.chart-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid var(--slate-200);
+    margin-bottom: 1.5rem;
+}
+
+.chart-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    gap: 1rem;
+}
+
+.chart-label {
+    width: 30%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: right;
+    color: var(--slate-600);
+}
+
+.chart-bar-bg {
+    flex-grow: 1;
+    height: 1rem;
+    background: var(--slate-100);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.chart-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    width: 0%;
+    transition: width 1s ease-out;
+}
+
+/* Diagnosis Cards */
+.diag-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
-    margin-top: 1.5rem;
-    width: 100%;
 }
 
-.insight-card {
-    padding: 1rem;
-    border-radius: 0.75rem;
-    text-align: left;
-    font-size: 0.875rem;
-    border: 1px solid transparent;
+@media (min-width: 768px) {
+    .diag-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .score-badge-container {
+        gap: 4rem;
+    }
 }
 
-.insight-danger {
-    background-color: #fef2f2;
-    border-color: #fecaca;
-    color: #7f1d1d;
+.diag-card {
+    background: var(--slate-50);
+    padding: 1.25rem;
+    border-radius: 1rem;
+    border-left: 4px solid var(--border-col);
 }
 
-.insight-success {
-    background-color: #ecfdf5;
-    border-color: #a7f3d0;
-    color: #064e3b;
+.diag-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    background: white;
+    border: 1px solid var(--slate-200);
+}
+
+/* Money Badge */
+.money-loss-section {
+    background: var(--red-50);
+    border: 1px solid #fecaca;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.money-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #991b1b;
+    line-height: 1.1;
+}
+
+.animate-pop {
+    animation: scale-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes scale-pop {
@@ -667,10 +929,17 @@ footer {
         margin-top: 1.5rem;
     }
 
-    .score-circle-lg {
-        width: 100px;
-        height: 100px;
+    /* Progress Width */
+    .w-progress-container {
+        width: 8rem;
     }
+
+    @media (min-width: 768px) {
+        .w-progress-container {
+            width: 12rem;
+        }
+    }
+
 
     h2.text-3xl {
         margin-bottom: 2rem !important;
