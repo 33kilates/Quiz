@@ -646,6 +646,7 @@ footer {
     body {
         overflow-x: hidden;
         width: 100%;
+        /* Prevent scroll bounce in some browsers? No, allows scroll if needed but aims for single screen */
     }
 
     .main-container {
@@ -654,6 +655,17 @@ footer {
         width: 100%;
         max-width: 100vw;
         overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 95vh;
+        /* Ensure full height usage */
+        justify-content: center;
+    }
+
+    /* Reduce Header height on mobile */
+    .top-bar {
+        font-size: 0.65rem;
+        padding: 0.2rem 0;
     }
 
     /* Force Vertical Stacking for Intro Screen */
@@ -680,37 +692,65 @@ footer {
         align-items: center !important;
     }
 
-    /* CARD STYLING - MIMIC PREVIOUS LAYOUT */
+    /* CARD STYLING - COMPACT FOR MOBILE */
     .glass-card {
-        padding: 2rem 1.5rem !important;
-        /* More vertical padding */
+        padding: 1.5rem 1rem !important;
+        /* Reduced padding from 2rem 1.5rem */
         width: 100% !important;
-        margin: 0 0 2rem 0 !important;
-        /* Bottom margin */
+        margin: 0 0 1rem 0 !important;
+        /* Reduced bottom margin */
         border-radius: 1rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        /* Allow it to grow to fill space if needed */
+        justify-content: space-between;
+        /* Space out content specifically for Quiz Card */
     }
 
-    /* More breathing room for questions */
+    /* Special handling for Intro Screen to not stretch weirdly */
+    #intro-screen {
+        flex: 0 1 auto;
+        /* Don't force grow intro screen too much */
+        gap: 1rem;
+    }
+
+    /* COMPACT CONTENT */
     .animate-content-inner {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem !important;
-        /* Increased from default gap-3 (0.75rem) */
+        gap: 0.75rem !important;
+        /* Decreased gap from 1.5rem to 0.75rem */
+    }
+
+    /* Reduce "Insight" box padding */
+    .insight-box {
+        padding: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        font-size: 0.75rem !important;
     }
 
     /* Typography Adjustments - Readable but compact */
     .text-3xl,
     .md\:text-5xl {
-        font-size: 1.75rem !important;
-        line-height: 1.2;
+        font-size: 1.5rem !important;
+        /* Further reduced from 1.75rem */
+        line-height: 1.1;
     }
 
     .text-2xl {
-        font-size: 1.5rem !important;
+        font-size: 1.25rem !important;
     }
 
+    /* Question specific: 1.1rem seems good for mobile readability without taking half screen */
     .text-xl {
-        font-size: 1.25rem !important;
+        font-size: 1.1rem !important;
+        line-height: 1.3 !important;
+    }
+
+    /* Option Typography */
+    .option-card span {
+        font-size: 0.9rem !important;
     }
 
     /* Adjust Buttons and Inputs */
@@ -726,10 +766,21 @@ footer {
         padding: 1.5rem !important;
     }
 
-    /* Option Cards */
+    /* Option Cards - Slimmer */
     .option-card {
-        padding: 1rem;
+        padding: 0.75rem !important;
+        /* Reduced from 1rem */
         width: 100%;
+        margin-bottom: 0 !important;
+    }
+
+    /* Quiz Controls / Next Button - STICKY OR COMPACT */
+    #quiz-controls {
+        margin-top: 1rem !important;
+        padding-top: 0.75rem !important;
+        height: auto !important;
+        /* Allow auto height */
+        padding-bottom: 0;
     }
 
     /* Fix Blobs overflowing */
@@ -743,7 +794,16 @@ footer {
 /* --- LOGIC FIXES (Global) --- */
 /* The JS adds .flex to these containers during fade-in, which defaults to row. 
    We MUST force column to ensure the header sits ON TOP of the card, not sideways. */
-#quiz-container,
+/* --- LOGIC FIXES (Global) --- */
+/* The JS adds .flex to these containers during fade-in, which defaults to row. 
+   We MUST force column to ensure the header sits ON TOP of the card, not sideways. */
+#quiz-container {
+    flex-direction: column !important;
+    min-height: 80vh;
+    /* Ensure it takes height for vertical centering/justification */
+    justify-content: center;
+}
+
 #result-screen {
     flex-direction: column !important;
 }
